@@ -61,3 +61,21 @@ func main() {
 	fmt.Println("Part Two:", reading.SlidingWindow().DepthIncrease())
 
 }
+
+// In Go 1.18 they'll be adding support for Generics. The "Sliding Window" function provides
+// a great example of a situation in which generics would work well. Below is an example
+// of a generic window function written in Go 1.18.
+//
+// func Windows[T any](v []T, size int) ([][]T, error) {
+// 	if len(v) < size {
+// 		return nil, errors.New("window size larger than input array")
+// 	}
+
+// 	windows := make([][]T, 0, len(v)-size-1)
+// 	for size < len(v) {
+// 		windows = append(windows, v[:size])
+// 		v = v[1:]
+// 	}
+
+// 	return windows, nil
+// }
