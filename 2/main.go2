@@ -1,0 +1,135 @@
+package main
+
+import (
+	"bufio"
+	"errors"
+	"fmt"
+	"io"
+	"strconv"
+	"strings"
+)
+
+type Direction uint
+
+const (
+	Forward Direction = iota + 1
+	Down
+	Up
+)
+
+type Command struct {
+	Dir      Direction
+	Distance int
+}
+
+func ParseCommand(str string) (Command, error) {
+	parts := strings.Split(str, " ")
+	if len(parts) != 2 {
+		return Command{}, errors.New("command format '[direction] [distance]'")
+	}
+
+	var dir Direction
+
+	switch parts[0] {
+	case "forward":
+		dir = Forward
+	case "down":
+		dir = Down
+	case "up":
+		dir = Up
+	default:
+		return Command{}, errors.New("unknown direction")
+	}
+
+	i, err := strconv.Atoi(parts[1])
+	if err != nil {
+		return Command{}, fmt.Errorf("can't parse distance: %w", err)
+	}
+
+	return Command{
+		Dir:      dir,
+		Distance: i,
+	}, nil
+}
+
+type Position struct {
+	x   int
+	y   int
+	aim int
+}
+
+func (p Position) Vector() int {
+	return p.x * p.y
+}
+
+type ParserFunc[T any] func(string) (T, error)
+
+func Parse[T any](r io.Reader, parser ParserFunc[T]) ([]T, error) {
+	var out []T
+
+	scanner := bufio.NewScanner(r)
+	for scanner.Scan() {
+		item, err := parser(scanner.Text())
+		if err != nil {
+			return nil, err
+		}
+
+		out = append(out, item)
+	}
+
+	return out, nil
+}
+
+func Reduce[T, U any](items []T, reducer func(U, T) U, acc U) U {
+	for _, item := range items {
+		acc = reducer(acc, item)
+	}
+
+	return acc
+}
+
+var testCase = `forward 5
+down 5
+forward 8
+up 3
+down 8
+forward 2`
+
+func main() {
+	f := strings.NewReader(testCase)
+
+	commands, err := Parse(f, ParseCommand)
+	if err != nil {
+		panic(err)
+	}
+
+	moved := Reduce(commands, func(p Position, c Command) Position {
+		switch c.Dir {
+		case Forward:
+			p.x += c.Distance
+		case Down:
+			p.y += c.Distance
+		case Up:
+			p.y -= c.Distance
+		}
+
+		return p
+	}, Position{})
+
+	aimed := Reduce(commands, func(p Position, c Command) Position {
+		switch c.Dir {
+		case Forward:
+			p.x += c.Distance
+			p.y += p.aim * c.Distance
+		case Down:
+			p.aim += c.Distance
+		case Up:
+			p.aim -= c.Distance
+		}
+
+		return p
+	}, Position{})
+
+	fmt.Println("Part One:", moved.Vector())
+	fmt.Println("Part Two:", aimed.Vector())
+}
