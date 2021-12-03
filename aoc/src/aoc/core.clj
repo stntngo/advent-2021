@@ -1,4 +1,4 @@
-(ns aoc
+(ns aoc.core
   (:gen-class)
   (:require [clojure.java.io :as io])
   (:require [clojure.string :as str]))
@@ -7,18 +7,22 @@
   (with-open [rdr (io/reader f)]
     (doall (map p (lazy-seq (line-seq rdr))))))
 
+(defn input [day]
+  (str "/Users/niels/code/stntngo/advent/" day "/input"))
+
 ; Day One
 (defn sweep-floor [readings window]
   (let [floor (map (partial reduce +) (partition window 1 readings))]
     (count
      (filter (partial apply <) (map vector floor (drop 1 floor))))))
 
-(let [sweep (partial sweep-floor (read-file "1/input" #(Integer/parseInt %)))]
-  (println "Day One")
-  (print "Part One: ")
-  (println (sweep 1))
-  (print "Part Two: ")
-  (println (sweep 3)))
+(defn day-one []
+  (let [sweep (partial sweep-floor (read-file (input 1) #(Integer/parseInt %)))]
+    (println "Day One")
+    (print "Part One: ")
+    (println (sweep 1))
+    (print "Part Two: ")
+    (println (sweep 3))))
 
 ; Day Two
 (defn parse-command [line]
@@ -35,9 +39,14 @@
     :up [x y (- aim distance)]
     :down [x y (+ aim distance)]))
 
-(let [[x y aim] (reduce aim [0 0 0] (read-file "2/input" parse-command))]
-  (println "Day Two")
-  (print "Part One: ")
-  (println (* x aim))
-  (print "Part Two: ")
-  (println (* x y)))
+(defn day-two []
+  (let [[x y aim] (reduce aim [0 0 0] (read-file (input 2) parse-command))]
+    (println "Day Two")
+    (print "Part One: ")
+    (println (* x aim))
+    (print "Part Two: ")
+    (println (* x y))))
+
+(defn main [] 
+  (day-one)
+  (day-two))
