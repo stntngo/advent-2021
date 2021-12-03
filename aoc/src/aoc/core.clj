@@ -57,7 +57,49 @@
     (print "Part Two: ")
     (println (* x y))))
 
+; Day Three
+(defn parse-bits [line]
+  (str/split line, #""))
+
+(defn transpose [matrix]
+  (apply mapv vector matrix))
+
+(defn count-bit [[zero one] bit]
+  (case bit
+    "0" [(inc zero) one]
+    "1" [zero (inc one)]))
+
+(defn gamma? [[zero one]]
+  (if (> one zero) "1" "0"))
+
+(defn flip [bit]
+  (case bit
+    "0" "1"
+    "1" "0"))
+
+(defn parse-bit-array [bits]
+  (Integer/parseInt (str/join bits) 2))
+
+(defn power-consumption [numbers]
+  (let [gamma (->> numbers
+                   transpose
+                   (mapv (partial reduce count-bit [0 0]))
+                   (mapv gamma?))
+        epsilon (mapv flip gamma)]
+    (* (parse-bit-array gamma) (parse-bit-array epsilon))))
+
+(defn day-three []
+  (let [numbers (->> (input 3)
+                     (read-file parse-bits))
+        power (power-consumption numbers)]
+    (println "Day Three")
+    (print "Part One: ")
+    (println power)))
+
 (defn main []
-  (day-one)
-  (day-two))
+  ; (day-one)
+  ; (day-two)
+  (day-three))
+
+
 

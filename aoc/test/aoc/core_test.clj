@@ -24,6 +24,19 @@ up 3
 down 8
 forward 2")
 
+(def day-three-test-case "00100
+11110
+10110
+10111
+10101
+01111
+00111
+11100
+10000
+11001
+00010
+01010")
+
 (test/deftest day-one-parse-test
   (test/testing "Day One Parse Test"
     (test/is (= 10 (count (read-str day-one-test-case #(Integer/parseInt %)))))))
@@ -50,3 +63,8 @@ forward 2")
     (let [[x y aim] (reduce aoc/aim [0 0 0] (read-str day-two-test-case aoc/parse-command))]
       (test/is (= 150 (* x aim)))
       (test/is (= 900 (* x y))))))
+
+(test/deftest day-three-power-test
+  (test/testing "Day Three Power Test"
+    (let [numbers (read-str day-three-test-case aoc/parse-bits)]
+      (test/is (= 198 (aoc/power-consumption numbers))))))
