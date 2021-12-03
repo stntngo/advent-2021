@@ -88,18 +88,43 @@
         epsilon (mapv flip gamma)]
     (* (parse-bit-array gamma) (parse-bit-array epsilon))))
 
+(defn bit-filter [numbers idx f]
+  (if (= 1 (count numbers))
+    (numbers 0)
+    (let [counter (->> numbers
+                       transpose
+                       (mapv (partial reduce count-bit [0 0])))
+          target (-> counter
+                     (get idx)
+                     f)]
+      (-> (filterv (fn [line] (-> line
+                                  (get idx)
+                                  (= target)))
+                   numbers)
+          (bit-filter (inc idx) f)))))
+
+(defn life-support [numbers]
+  (let [carbon (-> numbers
+                   (bit-filter 0 (fn [[zero one]] (if (>= one zero) "1" "0")))
+                   parse-bit-array)
+        oxygen (-> numbers
+                   (bit-filter 0 (fn [[zero one]] (if (<= zero one) "0" "1")))
+                   parse-bit-array)]
+    (* carbon oxygen)))
+
 (defn day-three []
   (let [numbers (->> (input 3)
                      (read-file parse-bits))
-        power (power-consumption numbers)]
+        power (power-consumption numbers)
+        life (life-support numbers)]
+
     (println "Day Three")
     (print "Part One: ")
-    (println power)))
+    (println power)
+    (print "Part Two: ")
+    (println life)))
 
 (defn main []
-  ; (day-one)
-  ; (day-two)
+  (day-one)
+  (day-two)
   (day-three))
-
-
-

@@ -66,5 +66,12 @@ forward 2")
 
 (test/deftest day-three-power-test
   (test/testing "Day Three Power Test"
-    (let [numbers (read-str day-three-test-case aoc/parse-bits)]
-      (test/is (= 198 (aoc/power-consumption numbers))))))
+    (test/is (= 198 (-> day-three-test-case
+                        (read-str aoc/parse-bits)
+                        aoc/power-consumption)))))
+
+(test/deftest day-three-life-support-test
+  (test/testing "Day Three Life Support Test"
+    (test/is (= 230 (-> day-three-test-case
+                        (read-str aoc/parse-bits)
+                        aoc/life-support)))))
