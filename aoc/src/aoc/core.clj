@@ -98,9 +98,9 @@
                      (nth idx)
                      f)]
       (-> (filter (fn [line] (-> line
-                                  (nth idx)
-                                  (= target)))
-                   numbers)
+                                 (nth idx)
+                                 (= target)))
+                  numbers)
           (recur (inc idx) f)))))
 
 (defn life-support [numbers]
@@ -128,9 +128,10 @@
 (defn parse-board [board]
   (->> board
        (map (fn [line]
-               (->> (str/split line #" ")
-                    (remove clojure.string/blank?)
-                    (map #(Integer/parseInt %)))))))
+              (as-> line v
+                   (str/split v #" ")
+                   (remove clojure.string/blank? v)
+                   (map #(Integer/parseInt %) v))))))
 
 (defn parse-bingo [input]
   (let [[raw-numbers & raw-boards] (->> input
@@ -164,10 +165,10 @@
 
 (defn first-winner [[numbers last-pick drawn] boards]
   (if-let [winner (->> boards
-                    (filter #(winner? drawn %))
-                    first)]
-      [last-pick drawn winner]
-      (recur (draw-number numbers drawn) boards)))
+                       (filter #(winner? drawn %))
+                       first)]
+    [last-pick drawn winner]
+    (recur (draw-number numbers drawn) boards)))
 
 (defn last-winner [[numbers last-pick drawn] boards]
   (if (every? #(winner? drawn %) boards)
@@ -191,3 +192,4 @@
   (day-two)
   (day-three)
   (day-four))
+
