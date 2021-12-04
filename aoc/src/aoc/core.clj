@@ -90,7 +90,7 @@
 
 (defn bit-filter [numbers idx f]
   (if (= 1 (count numbers))
-    (numbers 0)
+    (first numbers)
     (let [counter (->> numbers
                        transpose
                        (mapv #(reduce count-bit [0 0] %)))
@@ -151,12 +151,10 @@
 
 (defn winner? [drawn board]
   (or (->> board
-           (map #(every? drawn %))
-           (some true?))
+           (some #(every? drawn %)))
       (->> board
            transpose
-           (map #(every? drawn %))
-           (some true?))))
+           (some #(every? drawn %)))))
 
 (defn score-board [last-pick drawn board]
   (->> board
