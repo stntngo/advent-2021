@@ -119,6 +119,38 @@ func PlayGame(r *RandomNumbers, boards []Board) (Board, error) {
 	}
 }
 
+func WinLast(r *RandomNumbers, boards []Board) (Board, error) {
+	for len(boards) > 1 {
+		if err := r.Draw(); err != nil {
+			var winner [5][5]int
+			return winner, err
+		}
+
+		candidates := make([]Board, 0, len(boards))
+		for _, board := range boards {
+			if _, won := r.Score(board); !won {
+				candidates = append(candidates, board)
+			}
+		}
+
+		boards = candidates
+	}
+
+	last := boards[0]
+
+	for {
+		if err := r.Draw(); err != nil {
+			var winner [5][5]int
+			return winner, err
+
+		}
+
+		if _, won := r.Score(last); won {
+			return last, nil
+		}
+	}
+}
+
 func ParseBoard(lines [][]string) (Board, error) {
 	var board [5][5]int
 	if len(lines) != 5 {
@@ -193,6 +225,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	f.Close()
 
 	winner, err := PlayGame(rand, boards)
 	if err != nil {
@@ -205,4 +238,27 @@ func main() {
 	}
 
 	fmt.Println("Part One:", score)
+
+	f, err = os.Open("input")
+	if err != nil {
+		panic(err)
+	}
+	defer f.Close()
+
+	rand, boards, err = Parse(f)
+	if err != nil {
+		panic(err)
+	}
+
+	loser, err := WinLast(rand, boards)
+	if err != nil {
+		panic(err)
+	}
+
+	score, won = rand.Score(loser)
+	if !won {
+		panic("returned non-winner")
+	}
+
+	fmt.Println("Part Two:", score)
 }

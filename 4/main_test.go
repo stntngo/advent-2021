@@ -50,3 +50,17 @@ func Test_PlayGame(t *testing.T) {
 	assert.True(t, won)
 	assert.Equal(t, 4512, score)
 }
+
+func Test_WinLast(t *testing.T) {
+	r := strings.NewReader(testCase)
+
+	rand, boards, err := Parse(r)
+	require.NoError(t, err)
+
+	winner, err := WinLast(rand, boards)
+	require.NoError(t, err)
+
+	score, won := rand.Score(winner)
+	assert.True(t, won)
+	assert.Equal(t, 1924, score)
+}
