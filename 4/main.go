@@ -151,18 +151,22 @@ func WinLast(r *RandomNumbers, boards []Board) (Board, error) {
 	}
 }
 
-func ParseBoard(lines [][]string) (Board, error) {
+func ParseBoard(lines []string) (Board, error) {
 	var board [5][5]int
 	if len(lines) != 5 {
 		return board, errors.New("top level: board must be 5x5")
 	}
 
 	for i := 0; i < 5; i++ {
-		if len(lines[i]) != 5 {
+		line := strings.FieldsFunc(lines[i], func(r rune) bool {
+			return r == ' '
+		})
+
+		if len(line) != 5 {
 			return board, errors.New("inner: board msut be 5x5")
 		}
 
-		for j, str := range lines[i] {
+		for j, str := range line {
 			num, err := strconv.Atoi(str)
 			if err != nil {
 				return board, err
@@ -178,38 +182,33 @@ func ParseBoard(lines [][]string) (Board, error) {
 func Parse(r io.Reader) (*RandomNumbers, []Board, error) {
 	scanner := bufio.NewScanner(r)
 
-	var rand *RandomNumbers
-	var boards []Board
-	buffer := make([][]string, 0, 5)
+	var lines []string
 	for scanner.Scan() {
 		line := scanner.Text()
 		if line == "" {
 			continue
 		}
 
-		if rand == nil {
-			var err error
-			rand, err = ParseRand(line)
-			if err != nil {
-				return nil, nil, err
-			}
+		lines = append(lines, line)
+	}
 
-			continue
+	rawNumbers, rawBoardLines := lines[0], lines[1:]
+	rand, err := ParseRand(rawNumbers)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	var boards []Board
+	for len(rawBoardLines) > 0 {
+		var rawBoard []string
+		rawBoard, rawBoardLines = rawBoardLines[:5], rawBoardLines[5:]
+
+		board, err := ParseBoard(rawBoard)
+		if err != nil {
+			return nil, nil, err
 		}
 
-		buffer = append(buffer, strings.FieldsFunc(line, func(r rune) bool {
-			return r == ' '
-		}))
-
-		if len(buffer) == 5 {
-			board, err := ParseBoard(buffer)
-			if err != nil {
-				return nil, nil, err
-			}
-
-			boards = append(boards, board)
-			buffer = make([][]string, 0, 5)
-		}
+		boards = append(boards, board)
 	}
 
 	return rand, boards, nil
