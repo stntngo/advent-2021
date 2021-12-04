@@ -58,6 +58,9 @@
     (println (* x y))))
 
 ; Day Three
+(defn parse-bit-array [bits]
+  (Integer/parseInt (str/join bits) 2))
+
 (defn parse-bits [line]
   (str/split line #""))
 
@@ -76,9 +79,6 @@
   (case bit
     "0" "1"
     "1" "0"))
-
-(defn parse-bit-array [bits]
-  (Integer/parseInt (str/join bits) 2))
 
 (defn power-consumption [numbers]
   (let [gamma (->> numbers
@@ -112,26 +112,74 @@
                    parse-bit-array)]
     (* carbon oxygen)))
 
+(defrecord Node [count zero one])
+
+(defn weighted-trie [[head & tail] node]
+  (let [node (if node
+               (update-in node [:count] inc)
+               (Node. 1 nil nil))]
+    (case head
+      "0" (update-in node [:zero] #(weighted-trie tail %))
+      "1" (update-in node [:one] #(weighted-trie tail %))
+      nil node)))
+
+(defn trie-filter [node f]
+  (when (and node (or (:zero node) (:one node)))
+    (let [[val next] (f (:zero node) (:one node))]
+      (conj (trie-filter next f) val))))
+
+(defn oxygen-trie-filter [zero one]
+  (cond
+    (and zero one) (if (>= (:count one) (:count zero))
+                     [1 one]
+                     [0 zero])
+    zero [0 zero]
+    one [1 one]
+    :else [nil nil]))
+
+(defn carbon-trie-filter [zero one]
+  (cond
+    (and zero one) (if (<= (:count zero) (:count one))
+                     [0 zero]
+                     [1 one])
+    zero [0 zero]
+    one [1 one]
+    :else [nil nil]))
+
+(defn life-support-trie [numbers]
+  (let [root (->> numbers
+                  (reduce #(weighted-trie %2 %1) (Node. 0 nil nil)))
+        carbon (-> root
+                   (trie-filter carbon-trie-filter)
+                   parse-bit-array)
+        oxygen (-> root
+                   (trie-filter oxygen-trie-filter)
+                   parse-bit-array)]
+    (* carbon oxygen)))
+
 (defn day-three []
   (let [numbers (->> (input 3)
                      (read-file parse-bits))
         power (power-consumption numbers)
-        life (life-support numbers)]
+        life (life-support numbers)
+        life-trie (life-support-trie numbers)]
 
     (println "Day Three")
     (print "Part One: ")
     (println power)
     (print "Part Two: ")
-    (println life)))
+    (println life)
+    (print "Part Two (Trie): ")
+    (println life-trie)))
 
 ; Day Four
 (defn parse-board [board]
   (->> board
        (map (fn [line]
               (as-> line v
-                   (str/split v #" ")
-                   (remove str/blank? v)
-                   (map #(Integer/parseInt %) v))))))
+                (str/split v #" ")
+                (remove str/blank? v)
+                (map #(Integer/parseInt %) v))))))
 
 (defn parse-bingo [input]
   (let [[raw-numbers & raw-boards] (->> input
@@ -189,6 +237,11 @@
 
 (defn -main []
   (day-one)
+  (println "")
   (day-two)
+  (println "")
   (day-three)
+  (println "")
   (day-four))
+
+
