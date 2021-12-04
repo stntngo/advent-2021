@@ -43,11 +43,10 @@ func Test_PlayGame(t *testing.T) {
 	rand, boards, err := Parse(r)
 	require.NoError(t, err)
 
-	winner, err := PlayGame(rand, boards)
+	winner, err := WinFirst(rand, boards)
 	require.NoError(t, err)
 
-	score, won := rand.Score(winner)
-	assert.True(t, won)
+	score := rand.Score(winner)
 	assert.Equal(t, 4512, score)
 }
 
@@ -60,7 +59,6 @@ func Test_WinLast(t *testing.T) {
 	winner, err := WinLast(rand, boards)
 	require.NoError(t, err)
 
-	score, won := rand.Score(winner)
-	assert.True(t, won)
+	score := rand.Score(winner)
 	assert.Equal(t, 1924, score)
 }

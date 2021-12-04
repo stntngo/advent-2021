@@ -52,44 +52,33 @@ func (r *RandomNumbers) Drawn(n int) bool {
 	return ok
 }
 
-func (r *RandomNumbers) Score(b Board) (int, bool) {
-	var winner bool
+func (r *RandomNumbers) WinningRow(row [5]int) bool {
+	for _, number := range row {
+		if !r.Drawn(number) {
+			return false
+		}
+	}
+
+	return true
+}
+
+func (r *RandomNumbers) WinningBoard(b Board) bool {
 	for _, row := range b {
-		var match int
-		for _, number := range row {
-			if r.Drawn(number) {
-				match++
-			}
-		}
-
-		if match == len(row) {
-			winner = true
-			break
-		}
-
-	}
-
-	if !winner {
-		for i := 0; i < 5; i++ {
-			var match int
-
-			for _, row := range b {
-				if r.Drawn(row[i]) {
-					match++
-				}
-			}
-
-			if match == 5 {
-				winner = true
-				break
-			}
+		if r.WinningRow(row) {
+			return true
 		}
 	}
 
-	if !winner {
-		return 0, false
+	for _, column := range b.Transpose() {
+		if r.WinningRow(column) {
+			return true
+		}
 	}
 
+	return false
+}
+
+func (r *RandomNumbers) Score(b Board) int {
 	var sum int
 	for _, row := range b {
 		for _, number := range row {
@@ -99,20 +88,32 @@ func (r *RandomNumbers) Score(b Board) (int, bool) {
 		}
 	}
 
-	return sum * r.last, true
+	return sum * r.last
 }
 
 type Board [5][5]int
 
-func PlayGame(r *RandomNumbers, boards []Board) (Board, error) {
+func (b Board) Transpose() Board {
+	var trans [5][5]int
+
+	for i := 0; i < 5; i++ {
+		for j := 0; j < 5; j++ {
+			trans[j][i] = b[i][j]
+		}
+	}
+
+	return trans
+}
+
+func WinFirst(r *RandomNumbers, boards []Board) (Board, error) {
+	var empty [5][5]int
 	for {
 		if err := r.Draw(); err != nil {
-			var winner [5][5]int
-			return winner, err
+			return empty, err
 		}
 
 		for _, board := range boards {
-			if _, won := r.Score(board); won {
+			if r.WinningBoard(board) {
 				return board, nil
 			}
 		}
@@ -120,15 +121,15 @@ func PlayGame(r *RandomNumbers, boards []Board) (Board, error) {
 }
 
 func WinLast(r *RandomNumbers, boards []Board) (Board, error) {
+	var empty [5][5]int
 	for len(boards) > 1 {
 		if err := r.Draw(); err != nil {
-			var winner [5][5]int
-			return winner, err
+			return empty, err
 		}
 
 		candidates := make([]Board, 0, len(boards))
 		for _, board := range boards {
-			if _, won := r.Score(board); !won {
+			if !r.WinningBoard(board) {
 				candidates = append(candidates, board)
 			}
 		}
@@ -137,18 +138,15 @@ func WinLast(r *RandomNumbers, boards []Board) (Board, error) {
 	}
 
 	last := boards[0]
-
-	for {
+	for !r.WinningBoard(last) {
 		if err := r.Draw(); err != nil {
-			var winner [5][5]int
-			return winner, err
+			return empty, err
 
 		}
 
-		if _, won := r.Score(last); won {
-			return last, nil
-		}
 	}
+
+	return last, nil
 }
 
 func ParseBoard(lines []string) (Board, error) {
@@ -226,15 +224,12 @@ func main() {
 	}
 	f.Close()
 
-	winner, err := PlayGame(rand, boards)
+	winner, err := WinFirst(rand, boards)
 	if err != nil {
 		panic(err)
 	}
 
-	score, won := rand.Score(winner)
-	if !won {
-		panic("returned non-winner")
-	}
+	score := rand.Score(winner)
 
 	fmt.Println("Part One:", score)
 
@@ -254,10 +249,7 @@ func main() {
 		panic(err)
 	}
 
-	score, won = rand.Score(loser)
-	if !won {
-		panic("returned non-winner")
-	}
+	score = rand.Score(loser)
 
 	fmt.Println("Part Two:", score)
 }
