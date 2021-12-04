@@ -120,6 +120,10 @@ func ParseCommands(r io.Reader) ([]Command, error) {
 		commands = append(commands, command)
 	}
 
+	if err := scanner.Err(); err != nil {
+		return nil, err
+	}
+
 	return commands, nil
 }
 

@@ -130,13 +130,13 @@
        (map (fn [line]
               (as-> line v
                    (str/split v #" ")
-                   (remove clojure.string/blank? v)
+                   (remove str/blank? v)
                    (map #(Integer/parseInt %) v))))))
 
 (defn parse-bingo [input]
   (let [[raw-numbers & raw-boards] (->> input
                                         str/split-lines
-                                        (remove clojure.string/blank?))
+                                        (remove str/blank?))
         random (as-> raw-numbers nums
                  (str/split nums #",")
                  (map #(Integer/parseInt %) nums))
@@ -187,9 +187,8 @@
     (print "Part Two: ")
     (println (apply score-board (last-winner random boards)))))
 
-(defn main []
+(defn -main []
   (day-one)
   (day-two)
   (day-three)
   (day-four))
-

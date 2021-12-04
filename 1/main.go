@@ -43,6 +43,10 @@ func ParseInput(r io.Reader) (SonarReading, error) {
 		reading = append(reading, i)
 	}
 
+	if err := scanner.Err(); err != nil {
+		return nil, err
+	}
+
 	return reading, nil
 }
 

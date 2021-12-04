@@ -190,6 +190,10 @@ func Parse(r io.Reader) (*RandomNumbers, []Board, error) {
 		lines = append(lines, line)
 	}
 
+	if err := scanner.Err(); err != nil {
+		return nil, nil, err
+	}
+
 	rawNumbers, rawBoardLines := lines[0], lines[1:]
 	rand, err := ParseRand(rawNumbers)
 	if err != nil {
