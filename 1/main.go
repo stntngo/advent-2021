@@ -51,6 +51,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	defer f.Close()
 
 	reading, err := ParseInput(f)
 	if err != nil {

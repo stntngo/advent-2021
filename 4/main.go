@@ -152,7 +152,7 @@ func WinLast(r *RandomNumbers, boards []Board) (Board, error) {
 func ParseBoard(lines []string) (Board, error) {
 	var board [5][5]int
 	if len(lines) != 5 {
-		return board, errors.New("top level: board must be 5x5")
+		return board, errors.New("board must be 5 rows")
 	}
 
 	for i := 0; i < 5; i++ {
@@ -161,7 +161,7 @@ func ParseBoard(lines []string) (Board, error) {
 		})
 
 		if len(line) != 5 {
-			return board, errors.New("inner: board msut be 5x5")
+			return board, errors.New("row must be 5 columns")
 		}
 
 		for j, str := range line {
@@ -217,12 +217,12 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	defer f.Close()
 
 	rand, boards, err := Parse(f)
 	if err != nil {
 		panic(err)
 	}
-	f.Close()
 
 	winner, err := WinFirst(rand, boards)
 	if err != nil {
@@ -232,17 +232,6 @@ func main() {
 	score := rand.Score(winner)
 
 	fmt.Println("Part One:", score)
-
-	f, err = os.Open("input")
-	if err != nil {
-		panic(err)
-	}
-	defer f.Close()
-
-	rand, boards, err = Parse(f)
-	if err != nil {
-		panic(err)
-	}
 
 	loser, err := WinLast(rand, boards)
 	if err != nil {

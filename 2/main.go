@@ -128,6 +128,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	defer f.Close()
 
 	commands, err := ParseCommands(f)
 	if err != nil {

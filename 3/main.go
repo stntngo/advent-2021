@@ -174,12 +174,6 @@ func main() {
 	}
 	defer f.Close()
 
-	f, err = os.Open("input")
-	if err != nil {
-		panic(err)
-	}
-	defer f.Close()
-
 	lines, err := Parse(f)
 	if err != nil {
 		panic(err)
