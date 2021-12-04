@@ -136,10 +136,9 @@
   (let [[raw-numbers & raw-boards] (->> input
                                         str/split-lines
                                         (remove clojure.string/blank?))
-        random (->> (-> raw-numbers
-                        (str/split #","))
-                    (map #(Integer/parseInt %)))
-
+        random (as-> raw-numbers nums
+                 (str/split nums #",")
+                 (map #(Integer/parseInt %) nums))
         boards  (->> raw-boards
                      (partition 5)
                      (map parse-board))]
