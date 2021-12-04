@@ -98,10 +98,10 @@
                      (nth idx)
                      f)]
       (-> (filter (fn [line] (-> line
-                                  (get idx)
+                                  (nth idx)
                                   (= target)))
                    numbers)
-          (bit-filter (inc idx) f)))))
+          (recur (inc idx) f)))))
 
 (defn life-support [numbers]
   (let [carbon (-> numbers
@@ -164,17 +164,16 @@
        (* last-pick)))
 
 (defn first-winner [[numbers last-pick drawn] boards]
-  (let [winner (->> boards
+  (if-let [winner (->> boards
                     (filter #(winner? drawn %))
                     first)]
-    (if winner
       [last-pick drawn winner]
-      (first-winner (draw-number numbers last-pick drawn) boards))))
+      (recur (draw-number numbers last-pick drawn) boards)))
 
 (defn last-winner [[numbers last-pick drawn] boards]
   (if (every? #(winner? drawn %) boards)
     [last-pick drawn (first boards)]
-    (last-winner
+    (recur
      (draw-number numbers last-pick drawn)
      (remove #(winner? drawn %) boards))))
 
