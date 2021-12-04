@@ -62,7 +62,7 @@
   (str/split line #""))
 
 (defn transpose [matrix]
-  (apply mapv vector matrix))
+  (apply map vector matrix))
 
 (defn count-bit [[zero one] bit]
   (case bit
@@ -83,9 +83,9 @@
 (defn power-consumption [numbers]
   (let [gamma (->> numbers
                    transpose
-                   (mapv #(reduce count-bit [0 0] %))
-                   (mapv gamma?))
-        epsilon (mapv flip gamma)]
+                   (map #(reduce count-bit [0 0] %))
+                   (map gamma?))
+        epsilon (map flip gamma)]
     (* (parse-bit-array gamma) (parse-bit-array epsilon))))
 
 (defn bit-filter [numbers idx f]
@@ -93,11 +93,11 @@
     (first numbers)
     (let [counter (->> numbers
                        transpose
-                       (mapv #(reduce count-bit [0 0] %)))
+                       (map #(reduce count-bit [0 0] %)))
           target (-> counter
-                     (get idx)
+                     (nth idx)
                      f)]
-      (-> (filterv (fn [line] (-> line
+      (-> (filter (fn [line] (-> line
                                   (get idx)
                                   (= target)))
                    numbers)
@@ -127,10 +127,10 @@
 ; Day Four
 (defn parse-board [board]
   (->> board
-       (mapv (fn [line]
+       (map (fn [line]
                (->> (str/split line #" ")
                     (remove clojure.string/blank?)
-                    (mapv #(Integer/parseInt %)))))))
+                    (map #(Integer/parseInt %)))))))
 
 (defn parse-bingo [input]
   (let [[raw-numbers & raw-boards] (->> input
@@ -142,7 +142,7 @@
 
         boards  (->> raw-boards
                      (partition 5)
-                     (mapv parse-board))]
+                     (map parse-board))]
 
     [[random nil #{}] boards]))
 
