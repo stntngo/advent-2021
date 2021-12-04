@@ -104,9 +104,9 @@ forward 2")
       (test/is (= 3 (count boards)))
       (test/is (= 7 drawn)))))
 
-(test/deftest day-four-first-winner
-  (test/testing "Day Four First Winner Test"
+(test/deftest day-four-winners
+  (test/testing "Day Four Winner Test"
     (let [[random boards] (-> day-four-test-case
-                               aoc/parse-bingo)
-          [winner last-pick drawn] (aoc/first-winner random boards)]
-      (test/is (= 4512 (aoc/score-board last-pick drawn winner))))))
+                               aoc/parse-bingo)]
+      (test/is (= 4512 (apply aoc/score-board (aoc/first-winner random boards))))
+      (test/is (= 1924 (apply aoc/score-board (aoc/last-winner random boards)))))))

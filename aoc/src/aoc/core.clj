@@ -167,20 +167,33 @@
 
 (defn first-winner [[numbers last-pick drawn] boards]
   (let [winner (->> boards
-           (filter (partial winner? drawn))
-           first)]
+                    (filter (partial winner? drawn))
+                    first)]
     (if winner
-      [winner last-pick drawn]
+      [last-pick drawn winner]
       (first-winner (draw-number numbers last-pick drawn) boards))))
+
+(defn last-winner [[numbers last-pick drawn] boards]
+  (if (every? (partial winner? drawn) boards)
+    [last-pick drawn (first boards)]
+    (last-winner
+     (draw-number numbers last-pick drawn)
+     (remove
+      (partial winner? drawn)
+      boards))))
+
+(defn day-four []
+  (let [[random boards] (->> (input 4)
+                             slurp
+                             parse-bingo)]
+    (println "Day Four")
+    (print "Part One: ")
+    (println (apply score-board (first-winner random boards)))
+    (print "Part Two: ")
+    (println (apply score-board (last-winner random boards)))))
 
 (defn main []
   (day-one)
   (day-two)
-  (day-three))
-
-
-
-
-
-
-
+  (day-three)
+  (day-four))
