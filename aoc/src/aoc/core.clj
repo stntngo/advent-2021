@@ -16,10 +16,10 @@
 (defn sweep-floor [readings window]
   (let [floor (->> readings
                    (partition window 1)
-                   (map (partial reduce +)))]
+                   (map #(reduce + %)))]
 
     (->> (map - floor (next floor))
-         (filter (partial > 0))
+         (filter #(> 0 %))
          count)))
 
 (defn day-one []
@@ -83,7 +83,7 @@
 (defn power-consumption [numbers]
   (let [gamma (->> numbers
                    transpose
-                   (mapv (partial reduce count-bit [0 0]))
+                   (mapv #(reduce count-bit [0 0] %))
                    (mapv gamma?))
         epsilon (mapv flip gamma)]
     (* (parse-bit-array gamma) (parse-bit-array epsilon))))
@@ -93,7 +93,7 @@
     (numbers 0)
     (let [counter (->> numbers
                        transpose
-                       (mapv (partial reduce count-bit [0 0])))
+                       (mapv #(reduce count-bit [0 0] %)))
           target (-> counter
                      (get idx)
                      f)]
@@ -144,18 +144,18 @@
                      (partition 5)
                      (mapv parse-board))]
 
-    [[random -1 #{}] boards]))
+    [[random nil #{}] boards]))
 
 (defn draw-number [[pick & numbers] _ drawn]
   [numbers pick (conj drawn pick)])
 
 (defn winner? [drawn board]
   (or (->> board
-           (map (partial every? drawn))
+           (map #(every? drawn %))
            (some true?))
       (->> board
            transpose
-           (map (partial every? drawn))
+           (map #(every? drawn %))
            (some true?))))
 
 (defn score-board [last-pick drawn board]
@@ -167,20 +167,18 @@
 
 (defn first-winner [[numbers last-pick drawn] boards]
   (let [winner (->> boards
-                    (filter (partial winner? drawn))
+                    (filter #(winner? drawn %))
                     first)]
     (if winner
       [last-pick drawn winner]
       (first-winner (draw-number numbers last-pick drawn) boards))))
 
 (defn last-winner [[numbers last-pick drawn] boards]
-  (if (every? (partial winner? drawn) boards)
+  (if (every? #(winner? drawn %) boards)
     [last-pick drawn (first boards)]
     (last-winner
      (draw-number numbers last-pick drawn)
-     (remove
-      (partial winner? drawn)
-      boards))))
+     (remove #(winner? drawn %) boards))))
 
 (defn day-four []
   (let [[random boards] (->> (input 4)
