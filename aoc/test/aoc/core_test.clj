@@ -100,7 +100,7 @@ forward 2")
   (test/testing "Day Four Parse Test"
     (let [[random boards] (-> day-four-test-case
                                aoc/parse-bingo)
-          [_ drawn _] (apply aoc/draw-number random)]
+          [_ drawn _] (aoc/draw-number (random 0) (random 2))]
       (test/is (= 3 (count boards)))
       (test/is (= 7 drawn)))))
 

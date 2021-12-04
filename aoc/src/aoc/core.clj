@@ -146,7 +146,7 @@
 
     [[random nil #{}] boards]))
 
-(defn draw-number [[pick & numbers] _ drawn]
+(defn draw-number [[pick & numbers] drawn]
   [numbers pick (conj drawn pick)])
 
 (defn winner? [drawn board]
@@ -168,13 +168,13 @@
                     (filter #(winner? drawn %))
                     first)]
       [last-pick drawn winner]
-      (recur (draw-number numbers last-pick drawn) boards)))
+      (recur (draw-number numbers drawn) boards)))
 
 (defn last-winner [[numbers last-pick drawn] boards]
   (if (every? #(winner? drawn %) boards)
     [last-pick drawn (first boards)]
     (recur
-     (draw-number numbers last-pick drawn)
+     (draw-number numbers drawn)
      (remove #(winner? drawn %) boards))))
 
 (defn day-four []
