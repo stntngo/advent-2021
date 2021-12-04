@@ -10,8 +10,8 @@ import (
 	"strings"
 )
 
-func BitArrayToInt(ba []string) (int64, error) {
-	return strconv.ParseInt(strings.Join(ba, ""), 2, 64)
+func BitArrayToInt(ba []string) (uint64, error) {
+	return strconv.ParseUint(strings.Join(ba, ""), 2, 64)
 }
 
 func Parse(r io.Reader) ([][]string, error) {
@@ -46,6 +46,7 @@ func Transpose(lines [][]string) [][]string {
 
 func Gamma(lines [][]string) []string {
 	var gamma []string
+	var gn, en int
 	for _, line := range lines {
 		counter := make(map[string]int)
 		for _, value := range line {
@@ -53,13 +54,18 @@ func Gamma(lines [][]string) []string {
 		}
 
 		if counter["1"] > counter["0"] {
+			gn = (gn << 1) | 1
+			en <<= 1
 			gamma = append(gamma, "1")
 		} else {
+			gn <<= 1
+			en = (en << 1) | 1
 			gamma = append(gamma, "0")
 		}
 
 	}
 
+	fmt.Println(gn, en)
 	return gamma
 }
 
@@ -77,23 +83,43 @@ func Invert(number []string) []string {
 	return out
 }
 
-func PowerConsumption(lines [][]string) (int64, error) {
-	lines = Transpose(lines)
-	gammaRaw := Gamma(lines)
-	gamma, err := BitArrayToInt(gammaRaw)
-	if err != nil {
-		return 0, err
+func Count(bits []string) (int, int) {
+	var zeroes, ones int
+	for _, bit := range bits {
+		switch bit {
+		case "0":
+			zeroes++
+		case "1":
+			ones++
+		default:
+			panic("unrecognized bit")
+		}
 	}
 
-	epsilon, err := BitArrayToInt(Invert(gammaRaw))
-	if err != nil {
-		return 0, err
+	return zeroes, ones
+}
+
+func PowerConsumption(lines [][]string) (uint64, error) {
+	lines = Transpose(lines)
+
+	var gamma, epsilon uint64
+	for _, line := range lines {
+		zeroes, ones := Count(line)
+
+		gamma <<= 1
+		epsilon <<= 1
+		if ones > zeroes {
+			gamma |= 1
+		} else {
+			epsilon |= 1
+		}
+
 	}
 
 	return gamma * epsilon, nil
 }
 
-func BitFilter(numbers [][]string, idx int, tgt func(map[string]int) string) ([]string, error) {
+func BitFilter(numbers [][]string, idx int, tgt func(int, int) bool) ([]string, error) {
 	if len(numbers) == 0 {
 		return nil, errors.New("no numbers left to filter")
 	}
@@ -102,13 +128,10 @@ func BitFilter(numbers [][]string, idx int, tgt func(map[string]int) string) ([]
 		return numbers[0], nil
 	}
 
-	counter := make(map[string]int)
-
-	for _, number := range numbers {
-		counter[number[idx]]++
+	target := "0"
+	if tgt(Count(Transpose(numbers)[idx])) {
+		target = "1"
 	}
-
-	target := tgt(counter)
 
 	var candidates [][]string
 	for _, number := range numbers {
@@ -120,25 +143,13 @@ func BitFilter(numbers [][]string, idx int, tgt func(map[string]int) string) ([]
 	return BitFilter(candidates, idx+1, tgt)
 }
 
-func LifeSupport(lines [][]string) (int64, error) {
-	oxygenRaw, err := BitFilter(lines, 0, func(m map[string]int) string {
-		if m["1"] >= m["0"] {
-			return "1"
-		}
-
-		return "0"
-	})
+func LifeSupport(lines [][]string) (uint64, error) {
+	oxygenRaw, err := BitFilter(lines, 0, func(z, o int) bool { return o >= z })
 	if err != nil {
 		return 0, err
 	}
 
-	carbonRaw, err := BitFilter(lines, 0, func(m map[string]int) string {
-		if m["0"] <= m["1"] {
-			return "0"
-		}
-
-		return "1"
-	})
+	carbonRaw, err := BitFilter(lines, 0, func(z, o int) bool { return o < z })
 	if err != nil {
 		return 0, err
 	}

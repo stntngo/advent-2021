@@ -27,19 +27,9 @@ func Test_PowerConsumption(t *testing.T) {
 	lines, err := Parse(r)
 	require.NoError(t, err)
 
-	transposed := Transpose(lines)
-	gammaRaw := Gamma(transposed)
-	gamma, err := BitArrayToInt(gammaRaw)
-	require.NoError(t, err)
-	assert.Equal(t, int64(22), gamma)
-
-	epsilon, err := BitArrayToInt(Invert(gammaRaw))
-	require.NoError(t, err)
-	assert.Equal(t, int64(9), epsilon)
-
 	power, err := PowerConsumption(lines)
 	require.NoError(t, err)
-	assert.Equal(t, int64(198), power)
+	assert.Equal(t, uint64(198), power)
 }
 
 func Test_LifeSupport(t *testing.T) {
@@ -50,5 +40,5 @@ func Test_LifeSupport(t *testing.T) {
 
 	life, err := LifeSupport(lines)
 	require.NoError(t, err)
-	assert.Equal(t, int64(230), life)
+	assert.Equal(t, uint64(230), life)
 }
