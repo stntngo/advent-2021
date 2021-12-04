@@ -129,13 +129,13 @@
   (->> board
        (mapv (fn [line]
                (->> (str/split line #" ")
-                    (filter (complement clojure.string/blank?))
+                    (remove clojure.string/blank?)
                     (mapv #(Integer/parseInt %)))))))
 
 (defn parse-bingo [input]
   (let [[raw-numbers & raw-boards] (->> input
                                         str/split-lines
-                                        (filterv (complement clojure.string/blank?)))
+                                        (remove clojure.string/blank?))
         random (->> (-> raw-numbers
                         (str/split #","))
                     (map #(Integer/parseInt %)))
@@ -152,11 +152,11 @@
 (defn winner? [drawn board]
   (or (->> board
            (map (partial every? drawn))
-           (reduce #(or %1 %2)))
+           (some true?))
       (->> board
            transpose
            (map (partial every? drawn))
-           (reduce #(or %1 %2)))))
+           (some true?))))
 
 (defn score-board [last-pick drawn board]
   (->> board
