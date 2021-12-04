@@ -59,7 +59,7 @@
 
 ; Day Three
 (defn parse-bits [line]
-  (str/split line, #""))
+  (str/split line #""))
 
 (defn transpose [matrix]
   (apply mapv vector matrix))
@@ -124,7 +124,63 @@
     (print "Part Two: ")
     (println life)))
 
+; Day Four
+(defn parse-board [board]
+  (->> board
+       (mapv (fn [line]
+               (->> (str/split line #" ")
+                    (filter (complement clojure.string/blank?))
+                    (mapv #(Integer/parseInt %)))))))
+
+(defn parse-bingo [input]
+  (let [[raw-numbers & raw-boards] (->> input
+                                        str/split-lines
+                                        (filterv (complement clojure.string/blank?)))
+        random (->> (-> raw-numbers
+                        (str/split #","))
+                    (map #(Integer/parseInt %)))
+
+        boards  (->> raw-boards
+                     (partition 5)
+                     (mapv parse-board))]
+
+    [[random -1 #{}] boards]))
+
+(defn draw-number [[pick & numbers] _ drawn]
+  [numbers pick (conj drawn pick)])
+
+(defn winner? [drawn board]
+  (or (->> board
+           (map (partial every? drawn))
+           (reduce #(or %1 %2)))
+      (->> board
+           transpose
+           (map (partial every? drawn))
+           (reduce #(or %1 %2)))))
+
+(defn score-board [last-pick drawn board]
+  (->> board
+       flatten
+       (remove drawn)
+       (reduce +)
+       (* last-pick)))
+
+(defn first-winner [[numbers last-pick drawn] boards]
+  (let [winner (->> boards
+           (filter (partial winner? drawn))
+           first)]
+    (if winner
+      [winner last-pick drawn]
+      (first-winner (draw-number numbers last-pick drawn) boards))))
+
 (defn main []
   (day-one)
   (day-two)
   (day-three))
+
+
+
+
+
+
+
