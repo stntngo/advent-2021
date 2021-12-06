@@ -63,12 +63,7 @@
 (defn transpose [matrix]
   (apply map vector matrix))
 
-(defn count-bit [[zero one] bit]
-  (case bit
-    "0" [(inc zero) one]
-    "1" [zero (inc one)]))
-
-(defn gamma? [[zero one]]
+(defn gamma-bit [{zero "0" one "1"}]
   (if (> one zero) "1" "0"))
 
 (defn flip [bit]
@@ -79,8 +74,8 @@
 (defn power-consumption [numbers]
   (let [gamma (->> numbers
                    transpose
-                   (map #(reduce count-bit [0 0] %))
-                   (map gamma?))
+                   (map frequencies)
+                   (map gamma-bit))
         epsilon (map flip gamma)]
     (* (parse-bit-array gamma) (parse-bit-array epsilon))))
 
@@ -89,7 +84,7 @@
     (first numbers)
     (let [counter (->> numbers
                        transpose
-                       (map #(reduce count-bit [0 0] %)))
+                       (map frequencies))
           target (-> counter
                      (nth idx)
                      f)]
@@ -101,10 +96,10 @@
 
 (defn life-support [numbers]
   (let [carbon (-> numbers
-                   (bit-filter 0 (fn [[zero one]] (if (>= one zero) "1" "0")))
+                   (bit-filter 0 (fn [{zero "0" one "1"}] (if (>= one zero) "1" "0")))
                    parse-bit-array)
         oxygen (-> numbers
-                   (bit-filter 0 (fn [[zero one]] (if (<= zero one) "0" "1")))
+                   (bit-filter 0 (fn [{zero "0" one "1"}] (if (<= zero one) "0" "1")))
                    parse-bit-array)]
     (* carbon oxygen)))
 
@@ -319,5 +314,3 @@
   (day-five)
   (println "")
   (day-six))
-
-
