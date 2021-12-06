@@ -74,8 +74,7 @@
 (defn power-consumption [numbers]
   (let [gamma (->> numbers
                    transpose
-                   (map frequencies)
-                   (map gamma-bit))
+                   (map #(gamma-bit (frequencies %))))
         epsilon (map flip gamma)]
     (* (parse-bit-array gamma) (parse-bit-array epsilon))))
 
