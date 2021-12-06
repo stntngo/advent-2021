@@ -68,6 +68,8 @@ forward 2")
 0,0 -> 8,8
 5,5 -> 8,2")
 
+(def day-six-test-case "3,4,3,1,2")
+
 (test/deftest day-one-parse-test
   (test/testing "Day One Parse Test"
     (test/is (= 10 (count (read-str day-one-test-case #(Integer/parseInt %)))))))
@@ -132,3 +134,9 @@ forward 2")
                           aoc/count-hot-spots)]
       (test/is (= 5 orthogonal))
       (test/is (= 12 total)))))
+
+(test/deftest day-six-lanternfish
+  (test/testing "Day Six Test"
+    (let [population (aoc/parse-lantern-fish day-six-test-case)]
+      (test/is (= 5934 (reduce + (aoc/simulate-population population 80))))
+      (test/is (= 26984457539 (reduce + (aoc/simulate-population population 256)))))))

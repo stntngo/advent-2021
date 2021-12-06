@@ -288,6 +288,38 @@
     (println "Part One:" no-diag)
     (println "Part Two:" total)))
 
+; Day Six
+(defn parse-lantern-fish [s]
+  (->> (str/split s #",")
+       (map #(Integer/parseInt %))
+       frequencies
+       seq
+       (reduce
+        (fn [acc [idx value]]
+          (update acc idx #(+ value %)))
+        (apply vector (repeat 9 0)))))
+
+(defn simulate-population [population days]
+  (if (= 0 days)
+    population
+    (let [base (apply vector (repeat 9 0))
+          [head & tail] population
+          shifted (concat tail '(0))]
+      (recur
+       (as-> base b
+         (update b 6 (constantly head))
+         (update b 8 (constantly head))
+         (mapv + b shifted))
+       (dec days)))))
+
+(defn day-six []
+  (let [population (-> (input 6)
+                       slurp
+                       parse-lantern-fish)]
+    (println "Day Six")
+    (println "Part One:" (reduce + (simulate-population population 80)))
+    (println "Part Two:" (reduce + (simulate-population population 256)))))
+
 (defn -main []
   (day-one)
   (println "")
@@ -297,5 +329,7 @@
   (println "")
   (day-four)
   (println "")
-  (day-five))
+  (day-five)
+  (println "")
+  (day-six))
 
