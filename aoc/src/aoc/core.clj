@@ -27,10 +27,8 @@
                    (read-file #(Integer/parseInt %))
                    (partial sweep-floor))]
     (println "Day One")
-    (print "Part One: ")
-    (println (sweep 1))
-    (print "Part Two: ")
-    (println (sweep 3))))
+    (println "Part One:" (sweep 1))
+    (println "Part Two:" (sweep 3))))
 
 ; Day Two
 (defn parse-command [line]
@@ -52,10 +50,8 @@
                        (read-file parse-command)
                        (reduce aim [0 0 0]))]
     (println "Day Two")
-    (print "Part One: ")
-    (println (* x aim))
-    (print "Part Two: ")
-    (println (* x y))))
+    (println "Part One:" (* x aim))
+    (println "Part Two:" (* x y))))
 
 ; Day Three
 (defn parse-bit-array [bits]
@@ -112,6 +108,7 @@
                    parse-bit-array)]
     (* carbon oxygen)))
 
+; Day Three Trie Version
 (defrecord Node [count zero one])
 
 (defn weighted-trie [[head & tail] node]
@@ -165,12 +162,9 @@
         life-trie (life-support-trie numbers)]
 
     (println "Day Three")
-    (print "Part One: ")
-    (println power)
-    (print "Part Two: ")
-    (println life)
-    (print "Part Two (Trie): ")
-    (println life-trie)))
+    (println "Part One:" power)
+    (println "Part Two:" life)
+    (println "Part Two (Trie):" life-trie)))
 
 ; Day Four
 (defn parse-board [board]
@@ -230,10 +224,8 @@
                              slurp
                              parse-bingo)]
     (println "Day Four")
-    (print "Part One: ")
-    (println (apply score-board (first-winner random boards)))
-    (print "Part Two: ")
-    (println (apply score-board (last-winner random boards)))))
+    (println "Part One:" (apply score-board (first-winner random boards)))
+    (println "Part Two:" (apply score-board (last-winner random boards)))))
 
 ; Day Five
 (defrecord Point [x y])
@@ -311,10 +303,11 @@
 (defn day-six []
   (let [population (-> (input 6)
                        slurp
-                       parse-lantern-fish)]
+                       parse-lantern-fish)
+        sim (partial simulate-population population)]
     (println "Day Six")
-    (println "Part One:" (reduce + (simulate-population population 80)))
-    (println "Part Two:" (reduce + (simulate-population population 256)))))
+    (println "Part One:" (reduce + (sim 80)))
+    (println "Part Two:" (reduce + (sim 256)))))
 
 (defn -main []
   (day-one)
