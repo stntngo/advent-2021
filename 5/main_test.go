@@ -24,5 +24,15 @@ func Test_VentCounting(t *testing.T) {
 
 	lines, err := Parse(r)
 	require.NoError(t, err)
-	assert.Equal(t, 5, SurveyVents(lines))
+
+	noDiagonals := make([]Line, 0, len(lines))
+
+	for _, line := range lines {
+		if line.LineType() != Diagonal {
+			noDiagonals = append(noDiagonals, line)
+		}
+	}
+
+	assert.Equal(t, 5, CountHotSpots(noDiagonals))
+	assert.Equal(t, 12, CountHotSpots(lines))
 }
