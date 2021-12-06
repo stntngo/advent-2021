@@ -235,6 +235,59 @@
     (print "Part Two: ")
     (println (apply score-board (last-winner random boards)))))
 
+; Day Five
+(defrecord Point [x y])
+
+(defn parse-point [s]
+  (as-> s s
+    (str/split s #",")
+    (mapv #(Integer/parseInt %) s)
+    (apply ->Point s)))
+
+(defn parse-line [s]
+  (as-> s s
+    (str/split s #" -> ")
+    (map parse-point s)))
+
+(defn line-type [{x1 :x y1 :y}
+                 {x2 :x y2 :y}]
+  (cond
+    (= x1 x2) :vertical
+    (= y1 y2) :horizontal
+    :else :diagonal))
+
+(defn xrange [x y]
+  (if (> x y)
+    (reverse (range y (inc x)))
+    (range x (inc y))))
+
+(defn line [{x1 :x y1 :y}
+            {x2 :x y2 :y}]
+  (case (line-type (Point. x1 y1) (Point. x2 y2))
+    :vertical (map #(->Point x1 %) (xrange y1 y2))
+    :horizontal (map #(->Point % y1) (xrange x1 x2))
+    :diagonal (map #(->Point %1 %2) (xrange x1 x2) (xrange y1 y2))))
+
+(defn count-hot-spots [lines]
+  (->> lines
+       (map #(apply line %))
+       flatten
+       frequencies
+       seq
+       (remove (fn [[_ n]] (= 1 n)))
+       count))
+
+(defn day-five []
+  (let [lines (->> (input 5)
+                   (read-file parse-line))
+        total (count-hot-spots lines)
+        no-diag (->> lines
+                     (remove #(= :diagonal (apply line-type %)))
+                     count-hot-spots)]
+    (println "Day Five")
+    (println "Part One:" no-diag)
+    (println "Part Two:" total)))
+
 (defn -main []
   (day-one)
   (println "")
@@ -242,6 +295,6 @@
   (println "")
   (day-three)
   (println "")
-  (day-four))
-
-
+  (day-four)
+  (println "")
+  (day-five))

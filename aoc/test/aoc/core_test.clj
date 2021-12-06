@@ -57,6 +57,17 @@ forward 2")
 22 11 13  6  5
  2  0 12  3  7")
 
+(def day-five-test-case "0,9 -> 5,9
+8,0 -> 0,8
+9,4 -> 3,4
+2,2 -> 2,1
+7,0 -> 7,4
+6,4 -> 2,0
+0,9 -> 2,9
+3,4 -> 1,4
+0,0 -> 8,8
+5,5 -> 8,2")
+
 (test/deftest day-one-parse-test
   (test/testing "Day One Parse Test"
     (test/is (= 10 (count (read-str day-one-test-case #(Integer/parseInt %)))))))
@@ -99,7 +110,7 @@ forward 2")
 (test/deftest day-four-parse-test
   (test/testing "Day Four Parse Test"
     (let [[random boards] (-> day-four-test-case
-                               aoc/parse-bingo)
+                              aoc/parse-bingo)
           [_ drawn _] (aoc/draw-number (random 0) (random 2))]
       (test/is (= 3 (count boards)))
       (test/is (= 7 drawn)))))
@@ -107,6 +118,17 @@ forward 2")
 (test/deftest day-four-winners
   (test/testing "Day Four Winner Test"
     (let [[random boards] (-> day-four-test-case
-                               aoc/parse-bingo)]
+                              aoc/parse-bingo)]
       (test/is (= 4512 (apply aoc/score-board (aoc/first-winner random boards))))
       (test/is (= 1924 (apply aoc/score-board (aoc/last-winner random boards)))))))
+
+(test/deftest day-five-vents
+  (test/testing "Day Five Test"
+    (let [lines (-> day-five-test-case
+                    (read-str aoc/parse-line))
+          total (aoc/count-hot-spots lines)
+          orthogonal (->> lines
+                          (remove #(= :diagonal (apply aoc/line-type %)))
+                          aoc/count-hot-spots)]
+      (test/is (= 5 orthogonal))
+      (test/is (= 12 total)))))
