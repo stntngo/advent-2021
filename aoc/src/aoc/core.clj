@@ -261,8 +261,8 @@
     (reverse (range y (inc x)))
     (range x (inc y))))
 
-(defn line [{x1 :x y1 :y}
-            {x2 :x y2 :y}]
+(defn line-points [{x1 :x y1 :y}
+                   {x2 :x y2 :y}]
   (case (line-type (Point. x1 y1) (Point. x2 y2))
     :vertical (map #(->Point x1 %) (xrange y1 y2))
     :horizontal (map #(->Point % y1) (xrange x1 x2))
@@ -270,7 +270,7 @@
 
 (defn count-hot-spots [lines]
   (->> lines
-       (map #(apply line %))
+       (map #(apply line-points %))
        flatten
        frequencies
        seq
@@ -298,3 +298,4 @@
   (day-four)
   (println "")
   (day-five))
+

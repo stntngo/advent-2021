@@ -10,6 +10,14 @@ import (
 	"strings"
 )
 
+type LineType int
+
+const (
+	Horizontal LineType = iota + 1
+	Vertical
+	Diagonal
+)
+
 type Point struct {
 	X, Y int
 }
@@ -42,20 +50,29 @@ type Line struct {
 	Start, End Point
 }
 
-func (l *Line) Points(diagonals bool) []Point {
+func (l *Line) LineType() LineType {
 	if l.Start.X == l.End.X {
-		return l.verticalLine()
+		return Vertical
 	}
 
 	if l.Start.Y == l.End.Y {
+		return Horizontal
+	}
+
+	return Diagonal
+}
+
+func (l *Line) Points() []Point {
+	switch l.LineType() {
+	case Horizontal:
 		return l.horizontalLine()
-	}
-
-	if diagonals {
+	case Vertical:
+		return l.verticalLine()
+	case Diagonal:
 		return l.diagonaLine()
+	default:
+		return nil
 	}
-
-	return nil
 }
 
 func (l *Line) verticalLine() []Point {
@@ -157,11 +174,16 @@ func Parse(r io.Reader) ([]Line, error) {
 	return lines, nil
 }
 
-func SurveyVents(lines []Line, diag bool) int {
+// NOTE (niels): I wrote this imperative style program first where I take in the diagonal option because
+// I had shoved the ability to say whether or not I was interetested in the diagonal points of a line
+// into the Points function itself. After writing the functional clojure version the "better" solution
+// is letting the caller of CountHotSpots decide whether diagonal lines should be counted not by
+// providing a flag parameter, but by filtering them out of the call to begin with.
+func CountHotSpots(lines []Line) int {
 	vents := make(map[Point]int)
 
 	for _, line := range lines {
-		for _, point := range line.Points(diag) {
+		for _, point := range line.Points() {
 			vents[point]++
 		}
 	}
@@ -188,7 +210,15 @@ func main() {
 		panic(err)
 	}
 
-	fmt.Println("Part One:", SurveyVents(lines, false))
-	fmt.Println("Part Two:", SurveyVents(lines, true))
+	noDiagonals := make([]Line, 0, len(lines))
+
+	for _, line := range lines {
+		if line.LineType() != Diagonal {
+			noDiagonals = append(noDiagonals, line)
+		}
+	}
+
+	fmt.Println("Part One:", CountHotSpots(noDiagonals))
+	fmt.Println("Part Two:", CountHotSpots(lines))
 
 }
