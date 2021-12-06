@@ -284,11 +284,9 @@
 (defn parse-lantern-fish [s]
   (->> (str/split s #",")
        (map #(Integer/parseInt %))
-       frequencies
-       seq
        (reduce
-        (fn [acc [idx value]]
-          (update acc idx #(+ value %)))
+        (fn [acc idx]
+          (update acc idx inc))
         (apply vector (repeat 9 0)))))
 
 (defn simulate-population [population days]
