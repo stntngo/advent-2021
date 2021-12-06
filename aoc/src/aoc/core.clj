@@ -107,11 +107,11 @@
 
 (defn weighted-trie [[head & tail] node]
   (let [node (if node
-               (update-in node [:count] inc)
+               (update node :count inc)
                (Node. 1 nil nil))]
     (case head
-      "0" (update-in node [:zero] #(weighted-trie tail %))
-      "1" (update-in node [:one] #(weighted-trie tail %))
+      "0" (update node :zero #(weighted-trie tail %))
+      "1" (update node :one #(weighted-trie tail %))
       nil node)))
 
 (defn trie-filter [node f]
