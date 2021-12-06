@@ -302,14 +302,10 @@
 (defn simulate-population [population days]
   (if (= 0 days)
     population
-    (let [base (apply vector (repeat 9 0))
-          [head & tail] population
-          shifted (concat tail '(0))]
+    (let [[head & tail] population
+          population (conj (apply vector tail) head)]
       (recur
-       (as-> base b
-         (update b 6 (constantly head))
-         (update b 8 (constantly head))
-         (mapv + b shifted))
+       (update population 6 #(+ head %))
        (dec days)))))
 
 (defn day-six []
@@ -332,4 +328,5 @@
   (day-five)
   (println "")
   (day-six))
+
 
