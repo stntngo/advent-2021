@@ -301,6 +301,55 @@
     (println "Part One:" (reduce + (sim 80)))
     (println "Part Two:" (reduce + (sim 256)))))
 
+; Day Seven
+(defn mean [coll]
+  (let [sum (apply + coll)
+        count (count coll)]
+    (if (pos? count)
+      (/ sum count)
+      0)))
+
+(defn median [coll]
+  (let [sorted (sort coll)
+        cnt (count sorted)
+        halfway (quot cnt 2)]
+    (if (odd? cnt)
+      (nth sorted halfway)
+      (let [bottom (dec halfway)
+            bottom-val (nth sorted bottom)
+            top-val (nth sorted halfway)]
+        (mean [bottom-val top-val])))))
+
+(defn minimum-cost [nums cost & guess]
+  (if (not guess)
+    (recur nums cost (median nums))
+    (let [left (cost nums (dec guess))
+          right (cost nums (inc guess))
+          middle (cost nums guess)]
+      (cond
+        (and (< middle left) (< middle right)) middle
+        (< left right) (recur nums cost (dec guess))
+        :else (recur nums cost (inc guess))))))
+
+(defn abs-cost [nums x]
+  (reduce + (map #(Math/abs (- % x)) nums)))
+
+(defn arithmetic-sum [x]
+  (/ (* x (inc x)) 2))
+
+(defn arith-cost [nums x]
+  (reduce + (map  #(arithmetic-sum (Math/abs (- % x))) nums)))
+
+(defn day-seven []
+  (let [nums (as-> (input 7) i
+               (slurp i)
+               (str/trim i)
+               (str/split i #",")
+               (map #(Integer/parseInt %) i))]
+    (println "Day Seven")
+    (println "Part One:" (abs-cost nums (median nums)))
+    (println "Part One Again" (minimum-cost nums arith-cost))))
+
 (defn -main []
   (day-one)
   (println "")
@@ -312,4 +361,12 @@
   (println "")
   (day-five)
   (println "")
-  (day-six))
+  (day-six)
+  (println "")
+  (day-seven))
+
+
+
+
+
+
