@@ -305,9 +305,7 @@
 (defn mean [coll]
   (let [sum (apply + coll)
         count (count coll)]
-    (if (pos? count)
-      (/ sum count)
-      0)))
+    (/ sum count)))
 
 (defn median [coll]
   (let [sorted (sort coll)
@@ -319,17 +317,6 @@
             bottom-val (nth sorted bottom)
             top-val (nth sorted halfway)]
         (mean [bottom-val top-val])))))
-
-(defn minimum-cost [nums cost & guess]
-  (if (not guess)
-    (recur nums cost (median nums))
-    (let [left (cost nums (dec guess))
-          right (cost nums (inc guess))
-          middle (cost nums guess)]
-      (cond
-        (and (< middle left) (< middle right)) middle
-        (< left right) (recur nums cost (dec guess))
-        :else (recur nums cost (inc guess))))))
 
 (defn abs-cost [nums x]
   (reduce + (map #(Math/abs (- % x)) nums)))
@@ -347,8 +334,14 @@
                (str/split i #",")
                (map #(Integer/parseInt %) i))]
     (println "Day Seven")
+    ; The value that minimizes (reduce + (map #(Math/abs (- % x)) s)) for a given
+    ; set s is the median of that set. The L1 norm.
     (println "Part One:" (abs-cost nums (median nums)))
-    (println "Part One Again" (minimum-cost nums arith-cost))))
+    ; In turn the value that minimizes the sum of the arithmetic sequences of the difference
+    ; between each element of that set and nil is an integer +/- the mean of the set s.
+    (println "Part Two:" (min
+                          (arith-cost nums (int (Math/floor (mean nums))))
+                          (arith-cost nums (int (Math/ceil (mean nums))))))))
 
 (defn -main []
   (day-one)
@@ -364,9 +357,3 @@
   (day-six)
   (println "")
   (day-seven))
-
-
-
-
-
-
