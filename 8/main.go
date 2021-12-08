@@ -152,8 +152,6 @@ func Parse(r io.Reader) ([]Signal, error) {
 	return signals, nil
 }
 
-// Treat this like a "make change" problem when there are multiple possible values then
-// recurse down with those options each specified.
 func CountFilter(mapping []rune, signal Signal) bool {
 	for i, c := range _COUNTS {
 
@@ -165,7 +163,6 @@ func CountFilter(mapping []rune, signal Signal) bool {
 		}
 
 		if count != c {
-			// fmt.Println(string(mapping), i, count, c)
 			return false
 		}
 	}
