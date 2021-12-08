@@ -3,7 +3,9 @@
   (:require [clojure.java.io :as io]
             [clojure.string :as str]
             [clojure.math.numeric-tower :as math]
-            [clojure.math.combinatorics :as combo]))
+            [clojure.math.combinatorics :as combo]
+            [clojure.set :refer [intersection]]
+            [clojure.core.match :refer [match]]))
 
 (defn read-file [p f]
   (with-open [rdr (io/reader f)]
@@ -410,12 +412,41 @@
          (map-indexed #(* (math/expt 10 (- 3 %1)) %2))
          (reduce +))))
 
+(defn decode-digit-clever [masks digit]
+  (let [digit (set digit)
+        four (get masks 4)
+        one (get masks 2)]
+    (match [(count digit)
+            (count (intersection digit four))
+            (count (intersection digit one))]
+      [2 _ _] 1
+      [3 _ _] 7
+      [4 _ _] 4
+      [7 _ _] 8
+      [5 2 _] 2
+      [5 3 1] 5
+      [5 3 2] 3
+      [6 4 _] 9
+      [6 3 1] 6
+      [6 3 2] 0)))
+
+(defn decode-output-clever [[signal output]]
+  (let [masks (->> signal
+                   (reduce
+                    (fn [acc x]
+                      (assoc acc (count x) (set x)))
+                    {}))]
+    (->> output
+         (map #(decode-digit-clever masks %))
+         (apply str)
+         Integer/parseInt)))
+
 (defn day-eight []
   (let [signals (->> (input 8)
                      (read-file parse-signal))
         easy-count (easy-digits signals)
         output-sum (->> signals
-                        (map decode-output)
+                        (map decode-output-clever)
                         (reduce +))]
     (println "Day Eight")
     (println "Part One:" easy-count)

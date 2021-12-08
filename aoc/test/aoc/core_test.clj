@@ -170,5 +170,5 @@ gcafb gcf dcaebfg ecagb gf abcdeg gaef cafbge fdbac fegbdc | fgae cfgab fg bagce
     (let [signals (-> day-eight-test-case
                       (read-str aoc/parse-signal))]
       (test/is (= 26 (aoc/easy-digits signals)))
-      (test/is (= 61229 (reduce + (map aoc/decode-output signals)))))))
-
+      (test/is (= 61229 (reduce + (map aoc/decode-output signals))))
+      (test/is (= 61229 (reduce + (map aoc/decode-output-clever signals)))))))
