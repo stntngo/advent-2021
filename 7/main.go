@@ -41,24 +41,23 @@ func SillyLineSearch(cost CostFunction, guess, step int) int {
 	}
 }
 
-func main() {
-	b, err := ioutil.ReadFile("input")
-	if err != nil {
-		panic(err)
-	}
-
+func ParseNums(s string) ([]int, error) {
 	var ints []int
 
-	for _, str := range strings.Split(string(b), ",") {
+	for _, str := range strings.Split(s, ",") {
 		num, err := strconv.Atoi(strings.TrimSpace(str))
 		if err != nil {
-			panic(err)
+			return nil, err
 		}
 
 		ints = append(ints, num)
 	}
 
-	l1 := func(x int) float64 {
+	return ints, nil
+}
+
+func L1(ints []int) func(int) float64 {
+	return func(x int) float64 {
 		var cost float64
 
 		for _, num := range ints {
@@ -67,8 +66,10 @@ func main() {
 
 		return cost
 	}
+}
 
-	l2 := func(x int) float64 {
+func L2(ints []int) func(int) float64 {
+	return func(x int) float64 {
 		var cost float64
 
 		for _, num := range ints {
@@ -78,10 +79,26 @@ func main() {
 
 		return cost
 	}
+}
 
+func MidPoint(ints []int) int {
 	sort.Ints(ints)
-	mid := (ints[0] + ints[len(ints)-1]) / 2
-	fmt.Println("Part One:", int(SillyLineSearch(l1, mid, 256)))
-	fmt.Println("Part Two:", int(SillyLineSearch(l2, mid, 256)))
+	return (ints[0] + ints[len(ints)-1]) / 2
+}
+
+func main() {
+	b, err := ioutil.ReadFile("input")
+	if err != nil {
+		panic(err)
+	}
+
+	nums, err := ParseNums(string(b))
+	if err != nil {
+		panic(err)
+	}
+
+	mid := MidPoint(nums)
+	fmt.Println("Part One:", int(SillyLineSearch(L1(nums), mid, 256)))
+	fmt.Println("Part Two:", int(SillyLineSearch(L2(nums), mid, 256)))
 
 }
