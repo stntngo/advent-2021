@@ -72,6 +72,17 @@ forward 2")
 
 (def day-seven-test-case "16,1,2,0,4,2,7,1,2,14")
 
+(def day-eight-test-case "be cfbegad cbdgef fgaecd cgeb fdcge agebfd fecdb fabcd edb | fdgacbe cefdb cefbgd gcbe
+edbfga begcd cbg gc gcadebf fbgde acbgfd abcde gfcbed gfec | fcgedb cgb dgebacf gc
+fgaebd cg bdaec gdafb agbcfd gdcbef bgcad gfac gcb cdgabef | cg cg fdcagb cbg
+fbegcd cbd adcefb dageb afcb bc aefdc ecdab fgdeca fcdbega | efabcd cedba gadfec cb
+aecbfdg fbg gf bafeg dbefa fcge gcbea fcaegb dgceab fcbdga | gecf egdcabf bgf bfgea
+fgeab ca afcebg bdacfeg cfaedg gcfdb baec bfadeg bafgc acf | gebdcfa ecba ca fadegcb
+dbcfg fgd bdegcaf fgec aegbdf ecdfab fbedc dacgb gdcebf gf | cefg dcbef fcge gbcadfe
+bdfegc cbegaf gecbf dfcage bdacg ed bedf ced adcbefg gebcd | ed bcgafe cdgba cbgef
+egadfb cdbfeg cegd fecab cgb gbdefca cg fgcdab egfdb bfceg | gbdfcae bgc cg cgb
+gcafb gcf dcaebfg ecagb gf abcdeg gaef cafbge fdbac fegbdc | fgae cfgab fg bagce")
+
 (test/deftest day-one-parse-test
   (test/testing "Day One Parse Test"
     (test/is (= 10 (count (read-str day-one-test-case #(Integer/parseInt %)))))))
@@ -143,7 +154,7 @@ forward 2")
       (test/is (= 5934 (reduce + (aoc/simulate-population population 80))))
       (test/is (= 26984457539 (reduce + (aoc/simulate-population population 256)))))))
 
-(test/deftest day-seven-opimization
+(test/deftest day-seven-optimization
   (test/testing "Day Seven Test"
     (let [nums (as-> day-seven-test-case t
                  (str/trim t)
@@ -153,3 +164,11 @@ forward 2")
       (test/is (= 168 (min
                        (aoc/arith-cost nums (int (Math/floor (aoc/mean nums))))
                        (aoc/arith-cost nums (int (Math/ceil (aoc/mean nums))))))))))
+
+(test/deftest day-eight-search
+  (test/testing "Day Eight Test"
+    (let [signals (-> day-eight-test-case
+                      (read-str aoc/parse-signal))]
+      (test/is (= 26 (aoc/easy-digits signals)))
+      (test/is (= 61229 (reduce + (map aoc/decode-output signals)))))))
+

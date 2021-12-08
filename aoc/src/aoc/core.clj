@@ -1,7 +1,9 @@
 (ns aoc.core
   (:gen-class)
-  (:require [clojure.java.io :as io])
-  (:require [clojure.string :as str]))
+  (:require [clojure.java.io :as io]
+            [clojure.string :as str]
+            [clojure.math.numeric-tower :as math]
+            [clojure.math.combinatorics :as combo]))
 
 (defn read-file [p f]
   (with-open [rdr (io/reader f)]
@@ -343,6 +345,82 @@
                           (arith-cost nums (int (Math/floor (mean nums))))
                           (arith-cost nums (int (Math/ceil (mean nums))))))))
 
+; Day Eight
+(defn parse-signal [line]
+  (as-> line l
+    (str/split l #" \| ")
+    (map #(str/split % #" ") l)))
+
+(defn easy-digits [signals]
+  (->> signals
+       (map second)
+       flatten
+       (filter #(#{2 3 4 7} (count %)))
+       count))
+
+(def ^:private digits [#{0 1 2 4 5 6},    ; 0
+                       #{2 5},                ; 1
+                       #{0 2 3 4 6},       ; 2
+                       #{0 2 3 5 6},       ; 3
+                       #{1 2 3 5},          ; 4
+                       #{0 1 3 5 6},       ; 5
+                       #{0 1 3 4 5 6},    ; 6
+                       #{0 2 5},             ; 7
+                       #{0 1 2 3 4 5 6}, ; 8
+                       #{0 1 2 3 5 6},    ; 9
+                       ])
+
+(def ^:private permutations
+  (apply vector (combo/permutations "abcdefg")))
+
+(defn resolve-digit [digit candidate]
+  (->> digit
+       (map #(nth candidate %))
+       set))
+
+(defn wiring [candidate]
+  (map #(resolve-digit % candidate) digits))
+
+(defn matching-digit? [candidate digit]
+  (and (= (count candidate) (count digit))
+       (every? candidate digit)))
+
+(defn valid-wiring? [[candidate & wiring] signal]
+  (if (nil? candidate)
+    true
+    (if-let [match (->> signal
+                        (filter #(matching-digit? candidate %))
+                        first)]
+      (recur wiring (remove #(= match %) signal))
+      false)))
+
+(defn decode-digit [decoded digit]
+  (first (keep-indexed #(when (matching-digit? %2 digit) %1) decoded)))
+
+(defn decode-signal [signal]
+  (->> permutations
+       (map wiring)
+       (filter #(valid-wiring? % signal))
+       first))
+
+(defn decode-output [[signal output]]
+  (let [decoded (decode-signal signal)]
+    (->> output
+         (map #(decode-digit decoded %))
+         (map-indexed #(* (math/expt 10 (- 3 %1)) %2))
+         (reduce +))))
+
+(defn day-eight []
+  (let [signals (->> (input 8)
+                     (read-file parse-signal))
+        easy-count (easy-digits signals)
+        output-sum (->> signals
+                        (map decode-output)
+                        (reduce +))]
+    (println "Day Eight")
+    (println "Part One:" easy-count)
+    (println "Part Two:" output-sum)))
+
 (defn -main []
   (day-one)
   (println "")
@@ -356,4 +434,7 @@
   (println "")
   (day-six)
   (println "")
-  (day-seven))
+  (day-seven)
+  (println "")
+  (day-eight))
+
