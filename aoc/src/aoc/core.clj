@@ -462,15 +462,12 @@
               (< t1 t2)])))
 
 (defn low-points [lines]
-  (let [width (count (first lines))
-        row-wise (flatten (map row-lows lines))
+  (let [row-wise (flatten (map row-lows lines))
         col-wise (flatten (transpose
                            (map row-lows (transpose lines))))]
-    (apply vector
-           (flatten (partition width
-                               (map #(and %1 %2)
-                                    row-wise
-                                    col-wise))))))
+    (mapv #(and %1 %2)
+          row-wise
+          col-wise)))
 
 (defn risk-level [lines]
   (let [low-key (low-points lines)]
@@ -549,3 +546,5 @@
   (day-eight)
   (println "")
   (day-nine))
+
+
