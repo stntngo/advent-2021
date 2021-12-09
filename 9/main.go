@@ -130,15 +130,15 @@ func (hm HeightMap) Basins() []map[Coordinate]bool {
 				node := nm[y][x]
 				basin[node.Coordinate] = true
 
-				stack := make([]*HeightNode, len(node.Inflows))
-				copy(stack, node.Inflows)
+				queue := make([]*HeightNode, len(node.Inflows))
+				copy(queue, node.Inflows)
 
-				for len(stack) > 0 {
-					node, stack = stack[0], stack[1:]
+				for len(queue) > 0 {
+					node, queue = queue[0], queue[1:]
 
 					basin[node.Coordinate] = true
 
-					stack = append(stack, node.Inflows...)
+					queue = append(queue, node.Inflows...)
 				}
 
 				out = append(out, basin)

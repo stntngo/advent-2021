@@ -452,6 +452,7 @@
     (println "Part One:" easy-count)
     (println "Part Two:" output-sum)))
 
+; Day Nine
 (defn row-lows [line]
   (let [parts (partition 3 1 line)
         [h1 h2 & _] (first parts)
