@@ -360,16 +360,16 @@
        (filter #(#{2 3 4 7} (count %)))
        count))
 
-(def ^:private digits [#{0 1 2 4 5 6},    ; 0
-                       #{2 5},                ; 1
-                       #{0 2 3 4 6},       ; 2
-                       #{0 2 3 5 6},       ; 3
-                       #{1 2 3 5},          ; 4
-                       #{0 1 3 5 6},       ; 5
-                       #{0 1 3 4 5 6},    ; 6
-                       #{0 2 5},             ; 7
+(def ^:private digits [#{0 1 2 4 5 6},   ; 0
+                       #{2 5},           ; 1
+                       #{0 2 3 4 6},     ; 2
+                       #{0 2 3 5 6},     ; 3
+                       #{1 2 3 5},       ; 4
+                       #{0 1 3 5 6},     ; 5
+                       #{0 1 3 4 5 6},   ; 6
+                       #{0 2 5},         ; 7
                        #{0 1 2 3 4 5 6}, ; 8
-                       #{0 1 2 3 5 6},    ; 9
+                       #{0 1 2 3 5 6},   ; 9
                        ])
 
 (def ^:private permutations
@@ -452,6 +452,33 @@
     (println "Part One:" easy-count)
     (println "Part Two:" output-sum)))
 
+(defn row-lows [line]
+  (let [parts (partition 3 1 line)
+        [h1 h2 & _] (first parts)
+        [t1 t2 & _] (reverse (last parts))]
+    (flatten [(< h1 h2)
+              (map (fn [[x y z]] (and (< y x) (< y z))) parts)
+              (< t1 t2)])))
+
+(defn low-points [lines]
+  (let [width (count (first lines))
+        row-wise (flatten (map row-lows lines))
+        col-wise (flatten (transpose
+                           (map row-lows (transpose lines))))]
+    (apply vector
+           (flatten (partition width
+                               (map #(and %1 %2)
+                                    row-wise
+                                    col-wise))))))
+
+(defn risk-level [lines]
+  (let [low-key (low-points lines)]
+    (->> lines
+         flatten
+         (keep-indexed #(when (get low-key %1) %2))
+         (map inc)
+         (reduce +))))
+
 (defn -main []
   (day-one)
   (println "")
@@ -468,4 +495,3 @@
   (day-seven)
   (println "")
   (day-eight))
-
