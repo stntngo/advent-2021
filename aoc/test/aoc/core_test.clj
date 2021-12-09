@@ -4,7 +4,7 @@
             [aoc.core :as aoc]))
 
 (defn read-str [s p]
-  (doall (map p (str/split-lines s))))
+  (mapv p (str/split-lines s)))
 
 (def day-one-test-case "199
 200
@@ -82,6 +82,12 @@ dbcfg fgd bdegcaf fgec aegbdf ecdfab fbedc dacgb gdcebf gf | cefg dcbef fcge gbc
 bdfegc cbegaf gecbf dfcage bdacg ed bedf ced adcbefg gebcd | ed bcgafe cdgba cbgef
 egadfb cdbfeg cegd fecab cgb gbdefca cg fgcdab egfdb bfceg | gbdfcae bgc cg cgb
 gcafb gcf dcaebfg ecagb gf abcdeg gaef cafbge fdbac fegbdc | fgae cfgab fg bagce")
+
+(def day-nine-test-case "2199943210
+3987894921
+9856789892
+8767896789
+9899965678")
 
 (test/deftest day-one-parse-test
   (test/testing "Day One Parse Test"
@@ -172,3 +178,10 @@ gcafb gcf dcaebfg ecagb gf abcdeg gaef cafbge fdbac fegbdc | fgae cfgab fg bagce
       (test/is (= 26 (aoc/easy-digits signals)))
       (test/is (= 61229 (reduce + (map aoc/decode-output signals))))
       (test/is (= 61229 (reduce + (map aoc/decode-output-clever signals)))))))
+
+(test/deftest day-nine-tests
+  (test/testing "Day Nine Test"
+    (let [lines (-> day-nine-test-case
+                    (read-str aoc/parse-height-row))]
+      (test/is (= 15 (aoc/risk-level lines)))
+      (test/is (= 1134 (aoc/basin-factor lines))))))

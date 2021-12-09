@@ -480,6 +480,57 @@
          (map inc)
          (reduce +))))
 
+(defn neighbors [x y]
+  [[(dec x) y]
+   [(inc x) y]
+   [x (dec y)]
+   [x (inc y)]])
+
+(defn map-basin [coord edges basin]
+  (let [basin (conj basin coord)]
+    (reduce #(map-basin %2 edges %1) basin  (edges coord))))
+
+(defn basin-factor [lines]
+  (let [line (first lines)
+        coords (->> (combo/cartesian-product
+                     (range (count lines))
+                     (range (count line)))
+                    (map #(apply vector (reverse %))))
+        low-key (low-points lines)
+        minima (->> coords
+                    (keep-indexed #(when (get low-key %1) %2)))
+        edges (->> coords
+                   (mapv (fn [[x y]]
+                           (let [value (get (get lines y) x)]
+                             (->> [x y]
+                                  (apply neighbors)
+                                  (filterv (fn [[x y]]
+                                             (let [nval (get (get lines y) x)]
+                                               (and
+                                                (and (>= x 0) (< x (count line)))
+                                                (and (>= y 0) (< y (count lines)))
+                                                (< nval 9)
+                                                (> nval value)))))))))
+                   (interleave coords)
+                   (apply hash-map))]
+    (->> minima
+         (map #(map-basin % edges #{}))
+         (map count)
+         (sort >)
+         (take 3)
+         (reduce *))))
+
+(defn parse-height-row [s]
+  (->> (str/split s #"")
+       (mapv #(Integer/parseInt %))))
+
+(defn day-nine []
+  (let [lines (->> (input 9)
+                   (read-file parse-height-row))]
+    (println "Day Nine")
+    (println "Part One:" (risk-level lines))
+    (println "Part Two:" (basin-factor lines))))
+
 (defn -main []
   (day-one)
   (println "")
@@ -495,4 +546,6 @@
   (println "")
   (day-seven)
   (println "")
-  (day-eight))
+  (day-eight)
+  (println "")
+  (day-nine))
