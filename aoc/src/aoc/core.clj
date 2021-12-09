@@ -487,6 +487,20 @@
   (let [basin (conj basin coord)]
     (reduce #(map-basin %2 edges %1) basin  (edges coord))))
 
+(defn connections [lines]
+  (let [line (first lines)]
+    (fn [[x y]]
+      (let [value (get (get lines y) x)]
+        (->> [x y]
+             (apply neighbors)
+             (filterv (fn [[x y]]
+                        (let [nval (get (get lines y) x)]
+                          (and
+                           (and (>= x 0) (< x (count line)))
+                           (and (>= y 0) (< y (count lines)))
+                           (< nval 9)
+                           (> nval value))))))))))
+
 (defn basin-factor [lines]
   (let [line (first lines)
         coords (->> (combo/cartesian-product
@@ -497,17 +511,7 @@
         minima (->> coords
                     (keep-indexed #(when (get low-key %1) %2)))
         edges (->> coords
-                   (mapv (fn [[x y]]
-                           (let [value (get (get lines y) x)]
-                             (->> [x y]
-                                  (apply neighbors)
-                                  (filterv (fn [[x y]]
-                                             (let [nval (get (get lines y) x)]
-                                               (and
-                                                (and (>= x 0) (< x (count line)))
-                                                (and (>= y 0) (< y (count lines)))
-                                                (< nval 9)
-                                                (> nval value)))))))))
+                   (mapv (connections lines))
                    (interleave coords)
                    (apply hash-map))]
     (->> minima
@@ -546,5 +550,3 @@
   (day-eight)
   (println "")
   (day-nine))
-
-
