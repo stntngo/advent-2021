@@ -119,31 +119,24 @@ func (hm HeightMap) LowPoints() []*HeightNode {
 }
 
 func (hm HeightMap) Basins() []map[Coordinate]bool {
-	nm := ConvertNodeMap(hm)
-
 	var out []map[Coordinate]bool
-	for y, row := range hm {
-		for x := range row {
-			if hm.IsLowPoint(Coordinate{x, y}) {
-				basin := make(map[Coordinate]bool)
+	for _, node := range hm.LowPoints() {
+		basin := make(map[Coordinate]bool)
 
-				node := nm[y][x]
-				basin[node.Coordinate] = true
+		basin[node.Coordinate] = true
 
-				queue := make([]*HeightNode, len(node.Inflows))
-				copy(queue, node.Inflows)
+		queue := make([]*HeightNode, len(node.Inflows))
+		copy(queue, node.Inflows)
 
-				for len(queue) > 0 {
-					node, queue = queue[0], queue[1:]
+		for len(queue) > 0 {
+			node, queue = queue[0], queue[1:]
 
-					basin[node.Coordinate] = true
+			basin[node.Coordinate] = true
 
-					queue = append(queue, node.Inflows...)
-				}
-
-				out = append(out, basin)
-			}
+			queue = append(queue, node.Inflows...)
 		}
+
+		out = append(out, basin)
 	}
 
 	return out
