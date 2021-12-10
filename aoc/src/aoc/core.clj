@@ -239,11 +239,11 @@
     (str/split s #" -> ")
     (map parse-point s)))
 
-(defn line-type [{x1 :x y1 :y}
-                 {x2 :x y2 :y}]
+(defn line-type [{x :x y :y}
+                 {x' :x y' :y}]
   (cond
-    (= x1 x2) :vertical
-    (= y1 y2) :horizontal
+    (= x x') :vertical
+    (= y y') :horizontal
     :else :diagonal))
 
 (defn xrange [x y]
@@ -251,12 +251,12 @@
     (reverse (range y (inc x)))
     (range x (inc y))))
 
-(defn line-points [{x1 :x y1 :y}
-                   {x2 :x y2 :y}]
-  (case (line-type (Point. x1 y1) (Point. x2 y2))
-    :vertical (map #(->Point x1 %) (xrange y1 y2))
-    :horizontal (map #(->Point % y1) (xrange x1 x2))
-    :diagonal (map #(->Point %1 %2) (xrange x1 x2) (xrange y1 y2))))
+(defn line-points [{x :x y :y}
+                   {x' :x y' :y}]
+  (case (line-type (Point. x y) (Point. x' y'))
+    :vertical (map #(->Point x %) (xrange y y'))
+    :horizontal (map #(->Point % y) (xrange x x'))
+    :diagonal (map #(->Point %1 %2) (xrange x x') (xrange y y'))))
 
 (defn count-hot-spots [lines]
   (->> lines
