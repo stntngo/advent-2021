@@ -540,9 +540,9 @@
       "[" (validate-syntax body (conj stack "]"))
       "{" (validate-syntax body (conj stack "}"))
       "<" (validate-syntax body (conj stack ">"))
-      (let [sym (first stack)]
+      (let [[sym & stack] stack]
         (if (= head sym)
-          (validate-syntax body (rest stack))
+          (validate-syntax body stack)
           [head nil])))
     [nil stack]))
 
@@ -609,4 +609,3 @@
   (day-nine)
   (println "")
   (day-ten))
-
