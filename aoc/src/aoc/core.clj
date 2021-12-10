@@ -559,10 +559,11 @@
 
 (defn score-file [lines]
   (let [validated (as-> lines l
-                    (map #(validate-syntax % '()) l))
+                    (map #(validate-syntax % '()) l)
+                    (transpose l))
         corrupt (->> validated
-                     (filter (fn [[corrupt _]] corrupt))
-                     (map #(get % 0))
+                     first
+                     (remove nil?)
                      (map (fn [sym]
                             (case sym
                               ")" 3
@@ -571,8 +572,8 @@
                               ">" 25137)))
                      (reduce +))
         stack (->> validated
-                   (filter (fn [[_ stack]] stack))
-                   (map #(get % 1))
+                   second
+                   (remove nil?)
                    (map score-stack)
                    median)]
 
