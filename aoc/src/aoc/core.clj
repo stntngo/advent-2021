@@ -532,6 +532,62 @@
     (println "Part One:" (risk-level lines))
     (println "Part Two:" (basin-factor lines))))
 
+; Day Ten
+(defn validate-syntax [[head & body] stack]
+  (if head
+    (case head
+      "(" (validate-syntax body (conj stack ")"))
+      "[" (validate-syntax body (conj stack "]"))
+      "{" (validate-syntax body (conj stack "}"))
+      "<" (validate-syntax body (conj stack ">"))
+      (let [sym (first stack)]
+        (if (= head sym)
+          (validate-syntax body (rest stack))
+          [head nil])))
+    [nil stack]))
+
+(defn score-stack [stack]
+  (reduce (fn [acc sym]
+            (let [sym-value (case sym
+                              ")" 1
+                              "]" 2
+                              "}" 3
+                              ">" 4)]
+              (-> acc
+                  (* 5)
+                  (+ sym-value)))) 0 stack))
+
+(defn score-file [lines]
+  (let [validated (as-> lines l
+                    (map #(validate-syntax % '()) l))
+        corrupt (->> validated
+                     (filter (fn [[corrupt _]] corrupt))
+                     (map #(get % 0))
+                     (map (fn [sym]
+                            (case sym
+                              ")" 3
+                              "]" 57
+                              "}" 1197
+                              ">" 25137)))
+                     (reduce +))
+        stack (->> validated
+                   (filter (fn [[_ stack]] stack))
+                   (map #(get % 1))
+                   (map score-stack)
+                   median)]
+
+    [corrupt stack]))
+
+(defn day-ten []
+  (let [[corrupt autocomplete] (as-> (input 10) l
+                                 (slurp l)
+                                 (str/split-lines l)
+                                 (map #(str/split % #"") l)
+                                 (score-file l))]
+    (println "Day Ten")
+    (println "Part One:" corrupt)
+    (println "Part Two:" autocomplete)))
+
 (defn -main []
   (day-one)
   (println "")
@@ -549,4 +605,7 @@
   (println "")
   (day-eight)
   (println "")
-  (day-nine))
+  (day-nine)
+  (println "")
+  (day-ten))
+

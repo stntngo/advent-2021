@@ -89,6 +89,17 @@ gcafb gcf dcaebfg ecagb gf abcdeg gaef cafbge fdbac fegbdc | fgae cfgab fg bagce
 8767896789
 9899965678")
 
+(def day-ten-test-case "[({(<(())[]>[[{[]{<()<>>
+[(()[<>])]({[<{<<[]>>(
+{([(<{}[<>[]}>{[]{[(<()>
+(((({<>}<{<{<>}{[]{[]{}
+[[<[([]))<([[{}[[()]]]
+[{[{({}]{}}([{[{{{}}([]
+{<[[]]>}<{[{[{[]{()[[[]
+[<(<(<(<{}))><([]([]()
+<{([([[(<>()){}]>(<<{{
+<{([{{}}[<[[[<>{}]]]>[]]")
+
 (test/deftest day-one-parse-test
   (test/testing "Day One Parse Test"
     (test/is (= 10 (count (read-str day-one-test-case #(Integer/parseInt %)))))))
@@ -185,3 +196,13 @@ gcafb gcf dcaebfg ecagb gf abcdeg gaef cafbge fdbac fegbdc | fgae cfgab fg bagce
                     (read-str aoc/parse-height-row))]
       (test/is (= 15 (aoc/risk-level lines)))
       (test/is (= 1134 (aoc/basin-factor lines))))))
+
+(test/deftest day-ten-tests
+  (test/testing "Day Ten Test"
+    (let [[corrupt autocomplete] (as-> day-ten-test-case t
+                                   (str/split-lines t)
+                                   (map #(str/split % #"") t)
+                                   (aoc/score-file t))]
+      (test/is (= 26397 corrupt))
+      (test/is (= 288957 autocomplete)))))
+
