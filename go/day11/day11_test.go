@@ -4,6 +4,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
@@ -143,4 +144,26 @@ func Test_Steps(t *testing.T) {
 		cavern.Step()
 		require.Equal(t, cavern, other)
 	}
+}
+
+func Test_TotalFlashes(t *testing.T) {
+	var solution Solution
+	err := solution.Load(strings.NewReader(testCase))
+	require.NoError(t, err)
+
+	ans, err := solution.PartOne()
+	require.NoError(t, err)
+
+	assert.Equal(t, "1656", ans)
+}
+
+func Test_FirstSynchronizedFlash(t *testing.T) {
+	var solution Solution
+	err := solution.Load(strings.NewReader(testCase))
+	require.NoError(t, err)
+
+	ans, err := solution.PartTwo()
+	require.NoError(t, err)
+
+	assert.Equal(t, "195", ans)
 }
