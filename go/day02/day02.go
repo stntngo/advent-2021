@@ -12,9 +12,23 @@ import (
 type Direction uint
 
 const (
-	Forward Direction = iota + 1
-	Down
-	Up
+	// Because our Enum value is really just a uint,
+	// we want to use something like iota + 1
+	// or set the first iota value to an "Invalid"
+	// enum to avoid the issue in which a zero-valued
+	// instance of our Enum is misinterpreted as having
+	// some meaning when it's actually indicative of
+	// some error state.
+	//
+	// This way if we accidentally write
+	//
+	// var direction Direction
+	//
+	// somewhere it won't be misinterpreted as being
+	// a valid Forward direction.
+	Forward Direction = iota + 1 // == 1
+	Down                         // == 2
+	Up                           // == 3
 )
 
 type Command struct {
@@ -43,6 +57,18 @@ func ParseCommand(str string) (Command, error) {
 
 	i, err := strconv.Atoi(parts[1])
 	if err != nil {
+		// The %w formatting option allows us to wrap errors. This
+		// lets us add on extra information to the error while still
+		// letting upstream callers who are potentially looking to
+		// react to specific kinds of errors through the use of
+		// errors.Is and errors.As act on those sentinel error types.
+		//
+		// NOTE: If you're ever reaching to log + return an error
+		// in your code, you probably want to wrap it instead!
+		// That way you can add the extra informational baggage
+		// you wanted to add through the logging call to the error
+		// without polluting the logs so that a single error is reported
+		// at more than one log site, making debugging more difficult.
 		return Command{}, fmt.Errorf("can't parse distance: %w", err)
 	}
 
