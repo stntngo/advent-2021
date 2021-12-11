@@ -30,7 +30,7 @@ func Test_Parse(t *testing.T) {
 func Test_DepthCount(t *testing.T) {
 	r := strings.NewReader(testCase)
 
-	reading, err := ParseInput(r)
+	reading, err := ParseSonarReading(r)
 	require.NoError(t, err)
 	assert.Equal(t, 7, reading.DepthIncrease())
 }
@@ -38,7 +38,7 @@ func Test_DepthCount(t *testing.T) {
 func Test_SlidingWindow(t *testing.T) {
 	r := strings.NewReader(testCase)
 
-	reading, err := ParseInput(r)
+	reading, err := ParseSonarReading(r)
 	require.NoError(t, err)
 	assert.Equal(t, 5, reading.SlidingWindow().DepthIncrease())
 

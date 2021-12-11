@@ -14,7 +14,7 @@
          (mapv p))))
 
 (defn input [day]
-  (str "/Users/niels/code/stntngo/advent/" day "/input"))
+  (str "/Users/niels/code/stntngo/advent/go/input/day-" (format "%02d" day)))
 
 ; Day One
 (defn sweep-floor [readings window]
@@ -483,9 +483,12 @@
    [x (dec y)]
    [x (inc y)]])
 
-(defn map-basin [coord edges basin]
-  (let [basin (conj basin coord)]
-    (reduce #(map-basin %2 edges %1) basin  (edges coord))))
+(defn map-basin
+  ([coord edges]
+   (map-basin coord edges #{}))
+  ([coord edges basin]
+   (let [basin (conj basin coord)]
+     (reduce #(map-basin %2 edges %1) basin  (edges coord)))))
 
 (defn connections [lines]
   (let [line (first lines)]
@@ -515,7 +518,7 @@
                    (interleave coords)
                    (apply hash-map))]
     (->> minima
-         (map #(map-basin % edges #{}))
+         (map #(map-basin % edges))
          (map count)
          (sort >)
          (take 3)
@@ -533,18 +536,21 @@
     (println "Part Two:" (basin-factor lines))))
 
 ; Day Ten
-(defn validate-syntax [[head & body] stack]
-  (if head
-    (case head
-      "(" (validate-syntax body (conj stack ")"))
-      "[" (validate-syntax body (conj stack "]"))
-      "{" (validate-syntax body (conj stack "}"))
-      "<" (validate-syntax body (conj stack ">"))
-      (let [[sym & stack] stack]
-        (if (= head sym)
-          (validate-syntax body stack)
-          [head nil])))
-    [nil stack]))
+(defn validate-syntax
+  ([body]
+   (validate-syntax body '()))
+  ([[head & body] stack]
+   (if head
+     (case head
+       "(" (validate-syntax body (conj stack ")"))
+       "[" (validate-syntax body (conj stack "]"))
+       "{" (validate-syntax body (conj stack "}"))
+       "<" (validate-syntax body (conj stack ">"))
+       (let [[sym & stack] stack]
+         (if (= head sym)
+           (recur body stack)
+           [head nil])))
+     [nil stack])))
 
 (defn score-stack [stack]
   (reduce (fn [acc sym]
@@ -559,7 +565,7 @@
 
 (defn score-file [lines]
   (let [validated (as-> lines l
-                    (map #(validate-syntax % '()) l)
+                    (map validate-syntax l)
                     (transpose l))
         corrupt (->> validated
                      first
@@ -609,3 +615,5 @@
   (day-nine)
   (println "")
   (day-ten))
+
+

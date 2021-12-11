@@ -9,6 +9,15 @@ import (
 
 	"github.com/olekukonko/tablewriter"
 	"github.com/stntngo/advent-2021/go/day01"
+	"github.com/stntngo/advent-2021/go/day02"
+	"github.com/stntngo/advent-2021/go/day03"
+	"github.com/stntngo/advent-2021/go/day04"
+	"github.com/stntngo/advent-2021/go/day05"
+	"github.com/stntngo/advent-2021/go/day06"
+	"github.com/stntngo/advent-2021/go/day07"
+	"github.com/stntngo/advent-2021/go/day08"
+	"github.com/stntngo/advent-2021/go/day09"
+	"github.com/stntngo/advent-2021/go/day10"
 )
 
 type Solution interface {
@@ -23,47 +32,60 @@ var inputs embed.FS
 
 var solutions = []Solution{
 	&day01.Solution{},
+	&day02.Solution{},
+	&day03.Solution{},
+	&day04.Solution{},
+	&day05.Solution{},
+	&day06.Solution{},
+	&day07.Solution{},
+	&day08.Solution{},
+	&day09.Solution{},
+	&day10.Solution{},
 }
 
 func main() {
 	table := make([][]string, 0, len(solutions))
+	ttstart := time.Now()
 	for i, sol := range solutions {
-		tstart := time.Now()
-		f, err := inputs.Open(fmt.Sprintf("input/day-%02d", i+1))
-		if err != nil {
-			panic(err)
-		}
-		defer f.Close()
+		func() {
+			tstart := time.Now()
+			f, err := inputs.Open(fmt.Sprintf("input/day-%02d", i+1))
+			if err != nil {
+				panic(err)
+			}
+			defer f.Close()
 
-		if err := sol.Load(f); err != nil {
-			panic(err)
-		}
+			if err := sol.Load(f); err != nil {
+				panic(err)
+			}
 
-		pone, err := sol.PartOne()
-		if err != nil {
-			panic(err)
-		}
+			pone, err := sol.PartOne()
+			if err != nil {
+				panic(err)
+			}
 
-		ptwo, err := sol.PartTwo()
-		if err != nil {
-			panic(err)
-		}
-		tend := time.Now()
+			ptwo, err := sol.PartTwo()
+			if err != nil {
+				panic(err)
+			}
+			tend := time.Now()
 
-		row := []string{
-			fmt.Sprintf("Day %v", i+1),
-			sol.Name(),
-			pone,
-			ptwo,
-			fmt.Sprintf("%s", tend.Sub(tstart)),
-		}
+			row := []string{
+				fmt.Sprintf("Day %v", i+1),
+				sol.Name(),
+				pone,
+				ptwo,
+				fmt.Sprintf("%s", tend.Sub(tstart)),
+			}
 
-		table = append(table, row)
-
+			table = append(table, row)
+		}()
 	}
+	ttend := time.Now()
 
 	w := tablewriter.NewWriter(os.Stdout)
 	w.SetHeader([]string{"Day", "Name", "Part One", "Part Two", "Duration"})
+	w.SetFooter([]string{"All Days", "", "", "", fmt.Sprintf("%s", ttend.Sub(ttstart))})
 	w.SetBorder(false)
 	w.AppendBulk(table)
 	w.Render()
