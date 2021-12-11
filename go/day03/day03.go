@@ -3,7 +3,6 @@ package day03
 import (
 	"bufio"
 	"errors"
-	"fmt"
 	"io"
 	"strconv"
 	"strings"
@@ -43,45 +42,6 @@ func Transpose(lines [][]string) [][]string {
 	return out
 }
 
-func Gamma(lines [][]string) []string {
-	var gamma []string
-	var gn, en int
-	for _, line := range lines {
-		counter := make(map[string]int)
-		for _, value := range line {
-			counter[value]++
-		}
-
-		if counter["1"] > counter["0"] {
-			gn = (gn << 1) | 1
-			en <<= 1
-			gamma = append(gamma, "1")
-		} else {
-			gn <<= 1
-			en = (en << 1) | 1
-			gamma = append(gamma, "0")
-		}
-
-	}
-
-	fmt.Println(gn, en)
-	return gamma
-}
-
-func Invert(number []string) []string {
-	var out []string
-
-	for _, n := range number {
-		if n == "1" {
-			out = append(out, "0")
-		} else {
-			out = append(out, "1")
-		}
-	}
-
-	return out
-}
-
 func Count(bits []string) (int, int) {
 	var zeroes, ones int
 	for _, bit := range bits {
@@ -105,9 +65,32 @@ func PowerConsumption(lines [][]string) (uint64, error) {
 	for _, line := range lines {
 		zeroes, ones := Count(line)
 
+		// Fun with bit manipulation. After counting the number of zeroes
+		// and ones in the line, we can directly manipulate the gamma
+		// and epsilon values pretty straightforwardly and avoid the
+		// BitArray that we make use of in the second part of the problem.
+		//
+		// First we shift both gamma and epsilon to the left one place.
+		//
+		// Example: gamma == 0b0001
+		//
+		//   0b0001
+		// <<     1
+		// --------
+		//   0b0010
 		gamma <<= 1
 		epsilon <<= 1
 		if ones > zeroes {
+			// Using the same example as above we perform a bitwise
+			// or on gamma when there are more zeroes than there
+			// are ones.
+			//
+			// Example: gamma == 0b0010
+			//
+			//  0b0010
+			// |0b0001
+			// -------
+			//  0b0010
 			gamma |= 1
 		} else {
 			epsilon |= 1
@@ -118,7 +101,17 @@ func PowerConsumption(lines [][]string) (uint64, error) {
 	return gamma * epsilon, nil
 }
 
-func BitFilter(numbers [][]string, idx int, tgt func(int, int) bool) ([]string, error) {
+// BitFilter lacks the neatness of the bitwise calculation of gamma and epsilon
+// -- although it remains totally possible to use bitmasks to solve this problem --
+// but it still has a tidy recursive property to it.
+//
+// Given our input set of numbers, we can iteratively filter out the numbers whose
+// bits at the specified index do not match the value returned by our target function.
+// With this reduced search space we can then recursively call BitFilter again stepping
+// through to the next idx until only one number remains at which point we can return
+// that number and it can be converted from an array of unicode "bits" into a proper
+// integer.
+func BitFilter(numbers [][]string, idx int, tgt func(int, int) string) ([]string, error) {
 	if len(numbers) == 0 {
 		return nil, errors.New("no numbers left to filter")
 	}
@@ -127,10 +120,7 @@ func BitFilter(numbers [][]string, idx int, tgt func(int, int) bool) ([]string, 
 		return numbers[0], nil
 	}
 
-	target := "0"
-	if tgt(Count(Transpose(numbers)[idx])) {
-		target = "1"
-	}
+	target := tgt(Count(Transpose(numbers)[idx]))
 
 	var candidates [][]string
 	for _, number := range numbers {
@@ -143,12 +133,24 @@ func BitFilter(numbers [][]string, idx int, tgt func(int, int) bool) ([]string, 
 }
 
 func LifeSupport(lines [][]string) (uint64, error) {
-	oxygenRaw, err := BitFilter(lines, 0, func(z, o int) bool { return o >= z })
+	oxygenRaw, err := BitFilter(lines, 0, func(z, o int) string {
+		if o >= z {
+			return "1"
+		} else {
+			return "0"
+		}
+	})
 	if err != nil {
 		return 0, err
 	}
 
-	carbonRaw, err := BitFilter(lines, 0, func(z, o int) bool { return o < z })
+	carbonRaw, err := BitFilter(lines, 0, func(z, o int) string {
+		if o < z {
+			return "1"
+		} else {
+			return "0"
+		}
+	})
 	if err != nil {
 		return 0, err
 	}
