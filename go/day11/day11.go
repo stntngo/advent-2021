@@ -1,14 +1,56 @@
-package main
+package day11
 
 import (
 	"bufio"
-	"fmt"
 	"io"
 	"strconv"
 	"strings"
 )
 
 const _SIZE = 10
+
+type Solution struct {
+	cavern Cavern
+}
+
+func (s *Solution) Name() string {
+	return "Dumbo Octopus"
+}
+
+func (s *Solution) Load(r io.Reader) error {
+	cavern, err := ParseCavern(r)
+	if err != nil {
+		return err
+	}
+
+	s.cavern = cavern
+
+	return nil
+
+}
+
+func (s *Solution) PartOne() (string, error) {
+	var total int
+
+	cavern := s.cavern.Copy()
+	for i := 0; i < 100; i++ {
+		total += cavern.Step()
+	}
+
+	return strconv.Itoa(total), nil
+}
+
+func (s *Solution) PartTwo() (string, error) {
+	cavern := s.cavern.Copy()
+
+	var step int
+	for {
+		step++
+		if cavern.Step() == (_SIZE * _SIZE) {
+			return strconv.Itoa(step), nil
+		}
+	}
+}
 
 type Coordinate struct {
 	x, y int
@@ -42,17 +84,17 @@ func (c Coordinate) Neighbors() []Coordinate {
 
 type Cavern [_SIZE][_SIZE]int
 
-// func (c *Cavern) Equal(o Cavern) bool {
-// 	for y := 0; y < _SIZE; y++ {
-// 		for x := 0; x < _SIZE; x++ {
-// 			if c[y][x] != o[y][x] {
-// 				return false
-// 			}
-// 		}
-// 	}
+func (c *Cavern) Copy() Cavern {
+	var cavern Cavern
 
-// 	return true
-// }
+	for y := 0; y < _SIZE; y++ {
+		for x := 0; x < _SIZE; x++ {
+			cavern[y][x] = c[y][x]
+		}
+	}
+
+	return cavern
+}
 
 func (c *Cavern) Step() int {
 	flashed := make(map[Coordinate]bool)
@@ -131,49 +173,4 @@ func ParseCavern(r io.Reader) (Cavern, error) {
 	}
 
 	return rows, nil
-}
-
-func main() {
-	r := strings.NewReader(`4134384626
-7114585257
-1582536488
-4865715538
-5733423513
-8532144181
-1288614583
-2248711141
-6415871681
-7881531438`)
-	// r := strings.NewReader(`5483143223
-	// 2745854711
-	// 5264556173
-	// 6141336146
-	// 6357385478
-	// 4167524645
-	// 2176841721
-	// 6882881134
-	// 4846848554
-	// 5283751526`)
-
-	rows, err := ParseCavern(r)
-	if err != nil {
-		panic(err)
-	}
-
-	var totalFlashed int
-	var i int
-	var allflashed bool
-	for !allflashed {
-		flashed := rows.Step()
-		if flashed == (_SIZE * _SIZE) {
-			allflashed = true
-			fmt.Println("All Flashed on Step", i+1)
-		}
-
-		totalFlashed += flashed
-		i++
-	}
-
-	fmt.Println(totalFlashed)
-
 }
