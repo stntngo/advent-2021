@@ -19,10 +19,10 @@ var testCase = `5483143223
 5283751526`
 
 func Test_Steps(t *testing.T) {
-	cavern, err := Parse(strings.NewReader(testCase))
+	cavern, err := ParseCavern(strings.NewReader(testCase))
 	require.NoError(t, err)
 
-	initial, err := Parse(strings.NewReader(`5483143223
+	initial, err := ParseCavern(strings.NewReader(`5483143223
 2745854711
 5264556173
 6141336146
@@ -137,7 +137,7 @@ func Test_Steps(t *testing.T) {
 0532250600
 0032240000`,
 	} {
-		other, err := Parse(strings.NewReader(step))
+		other, err := ParseCavern(strings.NewReader(step))
 		require.NoError(t, err)
 
 		cavern.Step()
