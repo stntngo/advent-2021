@@ -14,7 +14,7 @@
          (mapv p))))
 
 (defn input [day]
-  (str "/Users/niels/code/stntngo/advent/go/input/day-" (format "%02d" day)))
+  (str "../go/input/day-" (format "%02d" day)))
 
 ; Day One
 (defn sweep-floor [readings window]
