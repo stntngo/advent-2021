@@ -40,6 +40,6 @@ func Test_SlidingWindow(t *testing.T) {
 
 	reading, err := ParseSonarReading(r)
 	require.NoError(t, err)
-	assert.Equal(t, 5, reading.SlidingWindow().DepthIncrease())
+	assert.Equal(t, 5, reading.SlidingWindow(3).DepthIncrease())
 
 }

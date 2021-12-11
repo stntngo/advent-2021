@@ -29,5 +29,5 @@ func (s *Solution) PartOne() (string, error) {
 }
 
 func (s *Solution) PartTwo() (string, error) {
-	return strconv.Itoa(s.reading.SlidingWindow().DepthIncrease()), nil
+	return strconv.Itoa(s.reading.SlidingWindow(3).DepthIncrease()), nil
 }
