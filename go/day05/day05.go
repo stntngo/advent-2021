@@ -25,7 +25,7 @@ func ParsePoint(s string) (Point, error) {
 
 	parts := strings.Split(s, ",")
 	if len(parts) != 2 {
-		return point, errors.New("point must be defiend as (X, Y) pair")
+		return point, errors.New("point must be defined as (X, Y) pair")
 	}
 
 	x, err := strconv.Atoi(parts[0])
@@ -119,6 +119,7 @@ func (l *Line) diagonaLine() []Point {
 			return y - 1
 		}
 	}
+
 	for i := start.X; i <= end.X; i++ {
 		points = append(points, Point{i, y})
 
@@ -172,11 +173,15 @@ func Parse(r io.Reader) ([]Line, error) {
 	return lines, nil
 }
 
-// NOTE (niels): I wrote this imperative style program first where I take in the diagonal option because
-// I had shoved the ability to say whether or not I was interetested in the diagonal points of a line
-// into the Points function itself. After writing the functional clojure version the "better" solution
-// is letting the caller of CountHotSpots decide whether diagonal lines should be counted not by
-// providing a flag parameter, but by filtering them out of the call to begin with.
+// I wrote this imperative style program first where I take in a diagonal boolean
+// that specifies whether or not we should count the points of lines defined by diagonals
+// because  I had shoved the ability to say whether or not I was interetested in the
+// diagonal points of a line into the Line.Points method itself. After writing the
+// functional clojure version the "better" solution is letting the caller of CountHotSpots
+// decide whether diagonal lines should be counted not by providing a flag parameter,
+// but by filtering them out of the call to begin with. Let CountHotSpots concern itself
+// with one and only one thing, counting up the overlapping points of lines. Let the caller
+// concern itself with which lines should be counted.
 func CountHotSpots(lines []Line) int {
 	vents := make(map[Point]int)
 
