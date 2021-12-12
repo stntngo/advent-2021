@@ -21,7 +21,7 @@ func Max(i, j int) int {
 // Clojure side of things. So over here I'm having a bit more fun with
 // things and choosing to instead implement a silly line search in which
 // the step size is arbitrarily halved each time, leading ultimately
-// to a final 1-lookahead greeddy algorithm searching for the minimum.
+// to a final 1-lookahead greedy, hill-climbing algorithm.
 func SillyLineSearch(cost CostFunction, guess, step int) int {
 	reference := cost(guess)
 	lower := cost(guess - step)
