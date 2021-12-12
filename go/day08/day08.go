@@ -25,19 +25,40 @@ var (
 )
 
 func init() {
+	// Broadly speaking there are two ways to solve Day 8, the "clever" way
+	// and the brute force way. I implemented both the "clever" solution and
+	// the brute force solution in Clojure. Here in Go however, I implemented
+	// only the brute force method.
+	//
+	// I chose to do this for a couple reasons. Go wants you to do things
+	// "the dumb way". It doesn't have fancy Higher Kinded Types, or generic
+	// Map/Filter/Reduce functions out of a conscious decision to "keep it
+	// simple (stupid)". Searching through every possible permutation of the
+	// letters abcdefg, _is_  the simple way. Yes, it's more work for the
+	// machine, but it's a neglibile performance hit in a compiled language
+	// like Go. Because we identified that we can reuse the same 5,040
+	// permutations for every attempt, we eat the up front cost of computing
+	// all these permutations when the process starts and imports this module.
+	// and as a result searching through all of these combinations only takes
+	// around 35 milliseconds on my laptop.
 	Permutations([]rune("abcdefg"), func(a []rune) {
+		// We're mutating the `a` rune slice in place
+		// here, so once we have successfulyl constructed
+		// a valid permutation, we need to copy over
+		// the `a` slice into the `b` slice before pushing it
+		// into our _COMBINATIONS slice, or else we'd end
+		// up with 5,040 instances of the same arrangement
+		// of runes.
 		b := make([]rune, len(a))
 		copy(b, a)
 		_COMBINATIONS = append(_COMBINATIONS, b)
 	})
 }
 
-// Permutations calls f with each permutation of a.
 func Permutations(a []rune, f func([]rune)) {
 	perm(a, f, 0)
 }
 
-// Permute the values at index i to len(a)-1.
 func perm(a []rune, f func([]rune), i int) {
 	if i > len(a) {
 		f(a)
@@ -67,6 +88,14 @@ func DigitSegments(pattern []rune) [][]rune {
 }
 
 func VerifySignal(segments []rune, signal Signal) bool {
+	// But we shouldn't ignore _all_ possible optimizations.
+	// Even though we're brute forcing our way through things
+	// we can identify opportunities to cut down on repeatedly
+	// trying the most expensive computations. By checking that,
+	// at the very least, the segment frequencies would be accurate
+	// when combining this segment configuration and signal,
+	// we can reduce the time it takes to process all the potential
+	// segment configurations over 7x.
 	if !CountFilter(segments, signal) {
 		return false
 	}
@@ -76,25 +105,29 @@ func VerifySignal(segments []rune, signal Signal) bool {
 	digits := make([]string, len(signal.digits))
 	copy(digits, signal.digits)
 
+	// A signal is valid if it's possible to map each candidate
+	// digit to one and only one of the digits in the provided
+	// signal.
 	for _, candidate := range candidates {
-		match := -1
 		for i, digit := range digits {
 			if SegmentMatch(candidate, digit) {
-				match = i
+				// When we successfully map a digit
+				// we remove that digit from the
+				// list of candidates, and continue
+				// on to the next candidate digit.
+				digits[i] = digits[len(digits)-1]
+				digits[len(digits)-1] = ""
+				digits = digits[:len(digits)-1]
+
 				break
 			}
 		}
 
-		if match < 0 {
-			return false
-		}
-
-		digits[match] = digits[len(digits)-1]
-		digits[len(digits)-1] = ""
-		digits = digits[:len(digits)-1]
 	}
 
-	return true
+	// If we've mapped all the digits successfully, there will be nothing
+	// left in the initial digits slice.
+	return len(digits) == 0
 }
 
 type Signal struct {
@@ -190,6 +223,15 @@ func DecodeSignal(signal Signal) []rune {
 		}
 	}
 
+	// These unreachable panics are actually
+	// very bad practice. There's a _lot_ of
+	// assumptions baked into their exsitence.
+	// The only reason they can exist here at all
+	// is because of the guarantees of the
+	// Puzzle creator of advent of code.
+	// In the real world, these functions would
+	// 100% need to return ([]rune, error)
+	// and not just a []rune.
 	panic("unreachable")
 }
 
