@@ -3,7 +3,9 @@ package day12
 import (
 	"bufio"
 	"errors"
+	"fmt"
 	"io"
+	"sort"
 	"strings"
 	"unicode"
 )
@@ -48,14 +50,68 @@ const (
 	End
 )
 
+type Counter struct {
+	ID    string
+	Count int
+}
+
+func VisitHash(visited []*Cave) string {
+	count := make([]*Counter, 0, len(visited))
+
+	for _, cave := range visited {
+		if cave.Kind == Large {
+			continue
+		}
+
+		var found bool
+		for _, existing := range count {
+			if existing.ID == cave.Name {
+				existing.Count++
+				found = true
+			}
+		}
+
+		if !found {
+			count = append(
+				count,
+				&Counter{
+					ID:    cave.Name,
+					Count: 1,
+				},
+			)
+		}
+	}
+
+	sort.Slice(count, func(i, j int) bool {
+		return count[i].ID < count[j].ID
+	})
+
+	var out string
+	for _, counter := range count {
+		out += fmt.Sprintf("%v:%v//", counter.ID, counter.Count)
+	}
+
+	return out
+}
+
 type Cave struct {
 	Name string
 	Kind CaveType
 
 	Connections []*Cave
+	paths       map[string]int
 }
 
-func (c *Cave) Paths(max int, visited ...*Cave) int {
+func (c *Cave) Paths(max int, visited ...*Cave) (paths int) {
+	hash := VisitHash(visited)
+	if count, ok := c.paths[hash]; ok {
+		return count
+	}
+
+	defer func() {
+		c.paths[hash] = paths
+	}()
+
 	seen := make(map[string]int)
 	for _, v := range visited {
 		if v.Kind != Large {
@@ -78,17 +134,15 @@ func (c *Cave) Paths(max int, visited ...*Cave) int {
 		}
 	}
 
-	if max > 1 {
-		var atmax int
-		for _, count := range seen {
-			if count == max {
-				atmax++
-			}
+	var atmax int
+	for _, count := range seen {
+		if count == max && max > 1 {
+			atmax++
 		}
+	}
 
-		if atmax > 1 {
-			return 0
-		}
+	if atmax > 1 {
+		return 0
 	}
 
 	if c.Kind == End {
@@ -97,7 +151,6 @@ func (c *Cave) Paths(max int, visited ...*Cave) int {
 
 	visited = append([]*Cave{c}, visited...)
 
-	var paths int
 	for _, cxn := range c.Connections {
 		paths += cxn.Paths(max, visited...)
 	}
@@ -127,6 +180,7 @@ func NewCave(id string) *Cave {
 		Name:        id,
 		Kind:        ctype,
 		Connections: make([]*Cave, 0),
+		paths:       make(map[string]int),
 	}
 }
 
