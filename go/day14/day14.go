@@ -97,23 +97,12 @@ func PolymerScore(initial string, polymer map[string]uint64) uint64 {
 	counter := make(map[string]uint64)
 
 	for pair, count := range polymer {
-		for _, term := range strings.Split(pair, "") {
-			counter[term] += count
-		}
+		terms := strings.Split(pair, "")
+		counter[terms[1]] += count
 	}
 
-	inits := strings.Split(initial, "")
-	first, last := inits[0], inits[len(inits)-1]
-
-	for char := range counter {
-		counter[char] /= 2
-	}
-
+	first := strings.Split(initial, "")[0]
 	counter[first]++
-
-	if first != last {
-		counter[last]++
-	}
 
 	var max, min uint64
 	for _, value := range counter {
