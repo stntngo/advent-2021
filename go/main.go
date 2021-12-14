@@ -21,6 +21,7 @@ import (
 	"github.com/stntngo/advent-2021/go/day11"
 	"github.com/stntngo/advent-2021/go/day12"
 	"github.com/stntngo/advent-2021/go/day13"
+	"github.com/stntngo/advent-2021/go/day14"
 )
 
 type Solution interface {
@@ -47,6 +48,7 @@ var solutions = []Solution{
 	&day11.Solution{},
 	&day12.Solution{},
 	&day13.Solution{},
+	&day14.Solution{},
 }
 
 func main() {
