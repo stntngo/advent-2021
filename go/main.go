@@ -20,6 +20,7 @@ import (
 	"github.com/stntngo/advent-2021/go/day10"
 	"github.com/stntngo/advent-2021/go/day11"
 	"github.com/stntngo/advent-2021/go/day12"
+	"github.com/stntngo/advent-2021/go/day13"
 )
 
 type Solution interface {
@@ -45,6 +46,7 @@ var solutions = []Solution{
 	&day10.Solution{},
 	&day11.Solution{},
 	&day12.Solution{},
+	&day13.Solution{},
 }
 
 func main() {
@@ -93,5 +95,7 @@ func main() {
 	w.Append([]string{"All Days", "", "", "", fmt.Sprintf("%s", ttend.Sub(ttstart))})
 
 	fmt.Println("Advent of Code 2021!")
+	w.SetHeaderAlignment(tablewriter.ALIGN_RIGHT)
+	w.SetAlignment(tablewriter.ALIGN_RIGHT)
 	w.Render()
 }

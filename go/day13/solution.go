@@ -34,19 +34,5 @@ func (s *Solution) PartOne() (string, error) {
 func (s *Solution) PartTwo() (string, error) {
 	grid := Fold(s.grid, s.instructions)
 
-	transposed := Transpose(grid.Lines())
-
-	var output string
-	for len(transposed) > 0 {
-		var character [][]string
-		character, transposed = transposed[:4], transposed[4:]
-
-		if len(transposed) > 0 {
-			transposed = transposed[1:]
-		}
-
-		output += read(Transpose(character))
-	}
-
-	return output, nil
+	return Translate(grid)
 }

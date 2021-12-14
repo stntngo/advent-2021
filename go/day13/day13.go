@@ -216,3 +216,28 @@ func Fold(grid Grid, instructions []Instruction) Grid {
 
 	return grid
 }
+
+func Translate(grid Grid) (string, error) {
+	lines := grid.Lines()
+
+	if len(lines) != 6 {
+		return "", errors.New("unable to translate grid")
+	}
+
+	transposed := Transpose(grid.Lines())
+
+	var output string
+	for len(transposed) > 0 {
+		var character [][]string
+		character, transposed = transposed[:4], transposed[4:]
+
+		if len(transposed) > 0 {
+			transposed = transposed[1:]
+		}
+
+		output += read(Transpose(character))
+	}
+
+	return output, nil
+
+}
