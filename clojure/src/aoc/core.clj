@@ -5,7 +5,8 @@
             [clojure.math.numeric-tower :as math]
             [clojure.math.combinatorics :as combo]
             [clojure.set :refer [intersection]]
-            [clojure.core.match :refer [match]]))
+            [clojure.core.match :refer [match]]
+            [clojure.algo.generic.functor :refer [fmap]]))
 
 (defn read-file [p f]
   (with-open [rdr (io/reader f)]
@@ -595,6 +596,127 @@
     (println "Part One:" corrupt)
     (println "Part Two:" autocomplete)))
 
+; Day Eleven
+(def cavern-size 10)
+
+(defn parse-cavern [grid]
+  (->> grid
+       (map-indexed (fn [y row]
+                      (map-indexed (fn
+                                     [x val] [(->Point x y) val]) row)))
+       flatten
+       (apply hash-map)))
+
+(defn adjacent [point]
+  (let [{x :x y :y} point
+        adj (range -1 2)]
+    (->> adj
+         (map (fn [dx]
+                (map #(->Point (+ dx x) (+ % y)) adj)))
+         flatten
+         (remove (fn [{x' :x y' :y}]
+                   (or
+                    (< x' 0)
+                    (< y' 0)
+                    (>= x' cavern-size)
+                    (>= y' cavern-size)
+                    (and
+                     (= x x')
+                     (= y y'))))))))
+
+(defn step [cavern]
+  (let [cavern (fmap inc cavern)
+        round-flash (->> cavern
+                         seq
+                         (filter (fn [[_ energy]] (>= energy 9)))
+                         (map #(get % 0)))
+        flashed (set round-flash)]
+    ((fn [cavern round-flash flashed]
+       (if (= 0 (count round-flash))
+         [cavern flashed]
+         (let [cavern (->> round-flash
+                           (map adjacent)
+                           flatten
+                           (reduce #(update %1 %2 inc) cavern))
+               round-flash (->> cavern
+                                seq
+                                (filter (fn [[_ energy]] (>= energy 9)))
+                                (map #(get % 0))
+                                (remove flashed))
+               flashed (->> round-flash
+                            (reduce #(conj %1 %2) flashed))]
+           (recur cavern round-flash flashed))))
+     cavern
+     round-flash
+     flashed)))
+
+; Day Twelve
+; Day Thirteen
+(defn parse-fold [s]
+  (let [[_ axis value] (re-matches
+                        #"fold along (\w)=(\d+)"
+                        s)
+        axis (case axis
+               "x" :x
+               "y" :y)
+        value (Integer/parseInt value)]
+    [axis value]))
+
+(defn parse-lite-brite []
+  (let [[coords _ folds] (->> (input 13)
+                              slurp
+                              (str/split-lines)
+                              (partition-by empty?)
+                              (apply vector))
+        dots (->> coords
+                  (map (fn [coord]
+                         (as-> coord c
+                           (str/split c #",")
+                           (map #(Integer/parseInt %) c))))
+                  set)
+        instructions (->> folds
+                          (mapv parse-fold))]
+
+    [dots instructions]))
+
+(defn abs [x]
+  (max x (- x)))
+
+(defn fold-dot [[x y] [dir value]]
+  (case dir
+    :y [x (- value  (abs (- value y)))]
+    :x [(- value (abs (- value x))) y]))
+
+(defn fold-dots [dots [inst & remaining]]
+  (if inst
+    (recur (set (map #(fold-dot % inst) dots)) remaining)
+    dots))
+
+(defn print-dots [dots]
+  (let [mx (apply max (map first dots))
+        my (apply max (map second dots))]
+    (loop [y 0]
+      (when (<= y my)
+        (->> mx
+             inc
+             range
+             (map #(if (dots [% y]) "#" " "))
+             (apply str)
+             (println))
+        (recur (inc y))))))
+
+(defn day-thirteen []
+  (let [[dots instructions] (parse-lite-brite)
+        final (fold-dots dots instructions)]
+    (println "Day Thirteen")
+    (println "Part One:" (count (fold-dots dots (subvec instructions 0 1))))
+    (println "Part Two:")
+    (print-dots final)))
+
+; Day Fourteen
+; Day Fifteen
+; Day Sixteen
+
 (defn -main []
   (day-one)
   (println "")
@@ -614,6 +736,17 @@
   (println "")
   (day-nine)
   (println "")
-  (day-ten))
+  (day-ten)
+  (println "")
+  (day-thirteen))
+
+
+
+
+
+
+
+
+
 
 
