@@ -714,8 +714,70 @@
     (print-dots final)))
 
 ; Day Fourteen
+(defn parse-rule [rule]
+  (let [[[a b] insertion] (str/split rule #" -> ")]
+    [(str a b) [(str a insertion) (str insertion b)]]))
+
+(defn parse-polymers [s]
+  (let [[template & rules] (->> s
+                                str/split-lines
+                                (remove empty?))
+        init (first template)
+        rules (->> rules
+                   (map parse-rule)
+                   (apply concat)
+                   (apply hash-map))
+        template (->> template
+                      (partition 2 1)
+                      (map #(apply str %))
+                      frequencies)]
+    [template init rules]))
+
+(defn weighted-frequencies [coll]
+  (->> coll
+       (reduce (fn [acc [k cnt]]
+                 (assoc acc k
+                        (+ (get acc k 0) cnt))) {})))
+
+(defn apply-rules [polymers rules]
+  (->> polymers
+       (map (fn [[pair count]]
+              (map #(vector % count) (rules pair))))
+       (apply concat)
+       weighted-frequencies))
+
+(defn score-polymer [init coll]
+  (let [counts (as-> coll c
+                 (map (fn [[[_ char] count]]
+                        [char count]) c)
+                 (weighted-frequencies c)
+                 (update c init inc)
+                 (vals c))
+        max (apply max counts)
+        min (apply min counts)]
+    (- max min)))
+
+(defn day-fourteen [n]
+  (let [[template init rules] (->> (input 14)
+                                   slurp
+                                   parse-polymers)]
+    (score-polymer init (loop [template template
+                               i 0]
+                          (if (< i n)
+                            (recur (apply-rules template rules) (inc i))
+                            template)))))
+
 ; Day Fifteen
 ; Day Sixteen
+; Day Seventeen
+; Day Eighteen
+; Day Nineteen
+; Day Twenty
+; Day Twenty-One
+; Day Twenty-Two
+; Day Twenty-Three
+; Day Twenty-Four
+; Day Twenty-Five
 
 (defn -main []
   (day-one)
@@ -739,8 +801,6 @@
   (day-ten)
   (println "")
   (day-thirteen))
-
-
 
 
 
