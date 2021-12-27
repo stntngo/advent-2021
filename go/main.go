@@ -7,6 +7,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/olekukonko/tablewriter"
 	"github.com/stntngo/advent-2021/go/day01"
 	"github.com/stntngo/advent-2021/go/day02"
@@ -22,6 +23,7 @@ import (
 	"github.com/stntngo/advent-2021/go/day12"
 	"github.com/stntngo/advent-2021/go/day13"
 	"github.com/stntngo/advent-2021/go/day14"
+	"github.com/stntngo/advent-2021/go/day15"
 )
 
 type Solution interface {
@@ -49,9 +51,11 @@ var solutions = []Solution{
 	&day12.Solution{},
 	&day13.Solution{},
 	&day14.Solution{},
+	&day15.Solution{},
 }
 
 func main() {
+	spew.Config.MaxDepth = 3
 	table := make([][]string, 0, len(solutions))
 	ttstart := time.Now()
 	for i, sol := range solutions {
