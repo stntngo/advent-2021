@@ -29,5 +29,10 @@ func (s *Solution) PartOne() (string, error) {
 }
 
 func (s *Solution) PartTwo() (string, error) {
-	return "unimplemented", nil
+	value, err := Exec(s.root)
+	if err != nil {
+		return "", err
+	}
+
+	return strconv.Itoa(int(value)), nil
 }
