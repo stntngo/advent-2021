@@ -7,7 +7,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/olekukonko/tablewriter"
 	"github.com/stntngo/advent-2021/go/day01"
 	"github.com/stntngo/advent-2021/go/day02"
@@ -24,6 +23,7 @@ import (
 	"github.com/stntngo/advent-2021/go/day13"
 	"github.com/stntngo/advent-2021/go/day14"
 	"github.com/stntngo/advent-2021/go/day15"
+	"github.com/stntngo/advent-2021/go/day16"
 )
 
 type Solution interface {
@@ -37,25 +37,25 @@ type Solution interface {
 var inputs embed.FS
 
 var solutions = []Solution{
-	&day01.Solution{},
-	&day02.Solution{},
-	&day03.Solution{},
-	&day04.Solution{},
-	&day05.Solution{},
-	&day06.Solution{},
-	&day07.Solution{},
-	&day08.Solution{},
-	&day09.Solution{},
-	&day10.Solution{},
-	&day11.Solution{},
-	&day12.Solution{},
-	&day13.Solution{},
-	&day14.Solution{},
-	&day15.Solution{},
+	new(day01.Solution),
+	new(day02.Solution),
+	new(day03.Solution),
+	new(day04.Solution),
+	new(day05.Solution),
+	new(day06.Solution),
+	new(day07.Solution),
+	new(day08.Solution),
+	new(day09.Solution),
+	new(day10.Solution),
+	new(day11.Solution),
+	new(day12.Solution),
+	new(day13.Solution),
+	new(day14.Solution),
+	new(day15.Solution),
+	new(day16.Solution),
 }
 
 func main() {
-	spew.Config.MaxDepth = 3
 	table := make([][]string, 0, len(solutions))
 	ttstart := time.Now()
 	for i, sol := range solutions {
